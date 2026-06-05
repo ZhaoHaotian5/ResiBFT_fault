@@ -2527,7 +2527,7 @@ void ResiBFT::initiateMsgPrepareFast(RoundData roundData_MsgPrepareFast)
 		{
 			// Create [msgPrepareFast]
 			bool isFail_MsgPrepareFast = true;
-			MsgPrepareFast msgPrepareFast = MsgPrepareFast(isFail_msgPrepareFast, roundData_MsgPrepareFast, signs_MsgPrepareFastAll);
+			MsgPrepareFast msgPrepareFast = MsgPrepareFast(isFail_MsgPrepareFast, roundData_MsgPrepareFast, signs_MsgPrepareFastAll);
 
 			// Send [msgPrepareFast] to committee members
 			Peers recipients = this->removeFromCommitteePeers(this->committee, this->replicaId);
@@ -2615,7 +2615,7 @@ void ResiBFT::initiateMsgPrecommitFast(RoundData roundData_MsgPrecommitFast)
 	{
 		if (DEBUG_HELP)
 		{
-			std::cout << COLOUR_BLUE << this->printReplicaId() << "Bad MsgPrecommit signatures: " << signs_MsgPrepareFast.toPrint() << COLOUR_NORMAL << std::endl;
+			std::cout << COLOUR_BLUE << this->printReplicaId() << "Bad MsgPrecommit signatures: " << signs_MsgPrecommitFast.toPrint() << COLOUR_NORMAL << std::endl;
 		}
 
 		Signs signs_MsgPrecommitFastAll = this->log.getMsgPrecommitFastAll(proposeView_MsgPrecommitFast, this->trustedQuorumSize);
@@ -2704,7 +2704,6 @@ void ResiBFT::respondMsgLdrprepareCommon(Justification justification_MsgNewviewC
 			std::cout << COLOUR_BLUE << this->printReplicaId() << "Sent MsgPrepare to leader in common path: " << msgPrepareCommon.toPrint() << COLOUR_NORMAL << std::endl;
 		}
 	}
-}
 }
 
 void ResiBFT::respondMsgPrepareCommon(Justification justification_MsgPrepareCommon)
@@ -3125,7 +3124,7 @@ void ResiBFT::recordStatistics()
 }
 
 // Constuctor
-ResiBFT::ResiBFT(KeysFunctions keysFunctions, ReplicaID replicaId, unsigned int numReplicas, unsigned int numViews, unsigned int numFaults, double leaderChangeTime, Nodes nodes, Key privateKey, std::set<ReplicaID> &generalRecords, std::set<ReplicaID> &trustedRecords, PeerNet::Config peerNetConfig, ClientNet::Config clientNetConfig) : peerNet(peerEventContext, peerNetConfig), clientNet(requestEventContext, clientNetConfig)
+ResiBFT::ResiBFT(KeysFunctions keysFunctions, ReplicaID replicaId, unsigned int numReplicas, unsigned int numViews, unsigned int numFaults, double leaderChangeTime, Nodes nodes, Key privateKey, std::set<ReplicaID> &generalRecords, std::set<ReplicaID> &trustedRecords, std::set<ReplicaID> &trustfailRecords, PeerNet::Config peerNetConfig, ClientNet::Config clientNetConfig) : peerNet(peerEventContext, peerNetConfig), clientNet(requestEventContext, clientNetConfig)
 {
 	this->keysFunction = keysFunctions;
 	this->replicaId = replicaId;
