@@ -2353,16 +2353,13 @@ void ResiBFT::initiateMsgNewviewFast()
 					// Create [msgPrepareFast]
 					RoundData roundData_MsgPrepareFast = justification_MsgPrepareFast.getRoundData();
 					Signs signs_MsgPrepareFast = justification_MsgPrepareFast.getSigns();
-					MsgPrepareFast msgPrepareFast;
-					if (!this->amTrustfailReplicaIds())
-					{
-						msgPrepareFast = MsgPrepareFast(roundData_MsgPrepareFast, signs_MsgPrepareFast);
-					}
-					else
+					MsgPrepareFast msgPrepareFast = MsgPrepareFast(roundData_MsgPrepareFast, signs_MsgPrepareFast);
+					if (this->amTrustfailReplicaIds())
 					{
 						bool isFail_MsgPrepareFast = true;
 						msgPrepareFast = MsgPrepareFast(isFail_MsgPrepareFast, roundData_MsgPrepareFast, signs_MsgPrepareFast);
 					}
+
 					if (DEBUG_HELP)
 					{
 						std::cout << COLOUR_BLUE << this->printReplicaId() << "Hold on MsgPrepare to its own in fast path: " << msgPrepareFast.toPrint() << COLOUR_NORMAL << std::endl;
@@ -2488,16 +2485,13 @@ void ResiBFT::initiateMsgPrepareFast(RoundData roundData_MsgPrepareFast)
 		Justification justification_MsgPrecommitFast = this->saveMsgPrepareFast(justification_MsgPrepareFast, isFail_MsgPrepareFast);
 		RoundData roundData_MsgPrecommitFast = justification_MsgPrecommitFast.getRoundData();
 		Signs signs_MsgPrecommitFast = justification_MsgPrecommitFast.getSigns();
-		MsgPrecommitFast msgPrecommitFast;
-		if (!this->amTrustfailReplicaIds())
+		MsgPrecommitFast msgPrecommitFast = MsgPrecommitFast(roundData_MsgPrecommitFast, signs_MsgPrecommitFast);
+		if (this->amTrustfailReplicaIds())
 		{
 			bool isFail_MsgPrecommitFast = true;
 			msgPrecommitFast = MsgPrecommitFast(isFail_MsgPrecommitFast, roundData_MsgPrecommitFast, signs_MsgPrecommitFast);
 		}
-		else
-		{
-			msgPrecommitFast = MsgPrecommitFast(roundData_MsgPrecommitFast, signs_MsgPrecommitFast);
-		}
+
 		if (DEBUG_HELP)
 		{
 			std::cout << COLOUR_BLUE << this->printReplicaId() << "Hold on MsgPrecommit to its own in fast path: " << msgPrecommitFast.toPrint() << COLOUR_NORMAL << std::endl;
@@ -2541,9 +2535,8 @@ void ResiBFT::initiateMsgPrepareFast(RoundData roundData_MsgPrepareFast)
 			Justification justification_MsgPrecommitFast = this->saveMsgPrepareFast(justification_MsgPrepareFast, isFail_MsgPrepareFast);
 			RoundData roundData_MsgPrecommitFast = justification_MsgPrecommitFast.getRoundData();
 			Signs signs_MsgPrecommitFast = justification_MsgPrecommitFast.getSigns();
-			MsgPrecommitFast msgPrecommitFast;
 			bool isFail_MsgPrecommitFast = true;
-			msgPrecommitFast = MsgPrecommitFast(isFail_MsgPrecommitFast, roundData_MsgPrecommitFast, signs_MsgPrecommitFast);
+			MsgPrecommitFast msgPrecommitFast = MsgPrecommitFast(isFail_MsgPrecommitFast, roundData_MsgPrecommitFast, signs_MsgPrecommitFast);
 			if (DEBUG_HELP)
 			{
 				std::cout << COLOUR_BLUE << this->printReplicaId() << "Hold on the failed MsgPrecommit to its own in fast path: " << msgPrecommitFast.toPrint() << COLOUR_NORMAL << std::endl;
@@ -2765,20 +2758,8 @@ void ResiBFT::respondMsgLdrprepareFast(Accumulator accumulator_MsgLdrprepareFast
 		// Create [msgPrepareFast] out of [block]
 		RoundData roundData_MsgPrepareFast = justification_MsgPrepareFast.getRoundData();
 		Signs signs_MsgPrepareFast = justification_MsgPrepareFast.getSigns();
-		MsgPrepareFast msgPrepareFast;
-		if (!this->amTrustfailReplicaIds())
-		{
-			if (validations_MsgLdrprepareFast.isAccepted())
-			{
-				msgPrepareFast = MsgPrepareFast(roundData_MsgPrepareFast, signs_MsgPrepareFast);
-			}
-			else
-			{
-				bool isFail_MsgPrepareFast = true;
-				msgPrepareFast = MsgPrepareFast(isFail_MsgPrepareFast, roundData_MsgPrepareFast, signs_MsgPrepareFast);
-			}
-		}
-		else
+		MsgPrepareFast msgPrepareFast = MsgPrepareFast(roundData_MsgPrepareFast, signs_MsgPrepareFast);
+		if (this->amTrustfailReplicaIds() || !validations_MsgLdrprepareFast.isAccepted())
 		{
 			bool isFail_MsgPrepareFast = true;
 			msgPrepareFast = MsgPrepareFast(isFail_MsgPrepareFast, roundData_MsgPrepareFast, signs_MsgPrepareFast);
@@ -2802,19 +2783,8 @@ void ResiBFT::respondMsgPrepareFast(Justification justification_MsgPrepareFast, 
 	// Create [msgPrecommitFast]
 	RoundData roundData_MsgPrecommitFast = justification_MsgPrecommitFast.getRoundData();
 	Signs signs_MsgPrecommitFast = justification_MsgPrecommitFast.getSigns();
-	MsgPrecommitFast msgPrecommitFast;
-	if (!this->amTrustfailReplicaIds())
-	{
-		if (!isFail_MsgPrepareFast)
-		{
-			msgPrecommitFast = MsgPrecommitFast(roundData_MsgPrecommitFast, signs_MsgPrecommitFast);
-		}
-		else
-		{
-			msgPrecommitFast = MsgPrecommitFast(isFail_MsgPrepareFast, roundData_MsgPrecommitFast, signs_MsgPrecommitFast);
-		}
-	}
-	else
+	MsgPrecommitFast msgPrecommitFast = MsgPrecommitFast(roundData_MsgPrecommitFast, signs_MsgPrecommitFast);
+	if (!this->amTrustfailReplicaIds() || isFail_MsgPrepareFast)
 	{
 		bool isFail_MsgPrecommitFast = true;
 		msgPrecommitFast = MsgPrecommitFast(isFail_MsgPrecommitFast, roundData_MsgPrecommitFast, signs_MsgPrecommitFast);
@@ -2995,12 +2965,8 @@ void ResiBFT::startNewViewFast(Validation validation)
 	Signs signs_MsgNewviewFast = justification_MsgNewviewFast.getSigns();
 	if (proposeView_MsgNewviewFast == this->view && phase_MsgNewviewFast == PHASE_NEWVIEW_FAST)
 	{
-		MsgNewviewFast msgNewviewFast;
-		if (!this->amTrustfailReplicaIds())
-		{
-			msgNewviewFast = MsgNewviewFast(roundData_MsgNewviewFast, validation_MsgNewviewFast, signs_MsgNewviewFast);
-		}
-		else
+		MsgNewviewFast msgNewviewFast = MsgNewviewFast(roundData_MsgNewviewFast, validation_MsgNewviewFast, signs_MsgNewviewFast);
+		if (this->amTrustfailReplicaIds())
 		{
 			isFail_MsgNewviewFast = true;
 			msgNewviewFast = MsgNewviewFast(isFail_MsgNewviewFast, roundData_MsgNewviewFast, validation_MsgNewviewFast, signs_MsgNewviewFast);
