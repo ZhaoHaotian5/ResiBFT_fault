@@ -1,0 +1,42 @@
+enclave
+{
+    from "sgx_tsgxssl.edl" import *;
+    include "../App/config.h"
+    include "../App/types.h"
+    include "../App/key.h"
+    include "../Enclave/EnclaveUsertypes.h"
+
+	// ECALLs
+    trusted
+	{
+        public sgx_status_t TEE_initializeVariables([in] ReplicaID *me, [in] Pids_t *others, [in] unsigned int *GeneralQuorumSize, [in] unsigned int *TrustedQuorumSize);
+        
+		public sgx_status_t TEE_common2fast();
+		public sgx_status_t TEE_fast2common();
+		public sgx_status_t TEE_initializeCheckpoint([in] Hash_t *proposeHash_t, [in] View *proposeView);
+		public sgx_status_t TEE_updateCheckpoint([in] Hash_t *verifyHash_t, [in] View *verifyView, [in] Validations_t *validations_t, [in] Signs_t *signs_t);
+		public sgx_status_t TEE_checkBlock([in] Justification_t *justification_t, [in] bool *isFail, [out] Validation_t *validation_t);
+
+		public sgx_status_t TEE_verifyJustification([in] Justification_t *justification_t, [out] bool *b);
+        public sgx_status_t TEE_verifyProposalCommon([in] ProposalCommon_t *proposalCommon_t, [in] Signs_t *signs_t, [out] bool *b);
+        public sgx_status_t TEE_verifyProposalFast([in] ProposalFast_t *proposalFast_t, [in] Signs_t *signs_t, [out] bool *b);
+
+		public sgx_status_t TEE_initializeMsgNewviewCommon([out] Justification_t *justification_MsgNewviewCommon_t);
+        public sgx_status_t TEE_respondProposalCommon([in] Hash_t *proposeHash_t, [in] Justification_t *justification_MsgNewviewCommon_t, [out] Justification_t *justification_MsgPrepareCommon_t);
+        public sgx_status_t TEE_initializeMsgLdrprepareCommon([in] ProposalCommon_t *proposalCommon_MsgLdrprepareCommon_t, [out] Signs_t *signs_MsgLdrprepareCommon_t);
+        public sgx_status_t TEE_saveMsgPrepareCommon([in] Justification_t *justification_MsgPrepareCommon_t, [out] Justification_t *justification_MsgPrecommitCommon_t);
+        public sgx_status_t TEE_lockMsgPrecommitCommon([in] Justification_t *justification_MsgPrecommitCommon_t, [out] Justification_t *justification_MsgCommitCommon_t);
+
+        public sgx_status_t TEE_initializeMsgNewviewFast([out] Justification_t *justification_MsgNewviewFast_t);
+        public sgx_status_t TEE_initializeAccumulatorFast([in] Justifications_t *justifications_MsgNewviewFast_t, [out] Accumulator_t *accumulator_MsgLdrprepareFast_t);
+		public sgx_status_t TEE_respondProposalFast([in] Hash_t *proposeHash_t, [in] Accumulator_t *accumulator_MsgLdrprepareFast_t, [out] Justification_t *justification_MsgPrepareFast_t);
+        public sgx_status_t TEE_initializeMsgLdrprepareFast([in] ProposalFast_t *proposalFast_MsgLdrprepareFast_t, [out] Signs_t *signs_MsgLdrprepareFast_t);
+        public sgx_status_t TEE_saveMsgPrepareFast([in] Justification_t *justification_MsgPrepareFast_t, [in] bool *isFail_MsgPrepareFast, [out] Justification_t *justification_MsgPrecommitFast_t);
+    };
+
+	// OCALLs
+    untrusted
+	{	
+        void TEE_Print([in, string] const char* text);
+    };
+};
