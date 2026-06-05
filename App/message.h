@@ -376,7 +376,7 @@ struct MsgNewviewFast
 		std::string textFail = "";
 		if (isFail)
 		{
-			textFail = "FAIL"
+			textFail = "FAIL";
 		}
 		std::string text = "";
 		text += "RESIBFT_FAST_MSGNEWVIEW[";
@@ -472,7 +472,7 @@ struct MsgPrepareFast
 		std::string textFail = "";
 		if (isFail)
 		{
-			textFail = "FAIL"
+			textFail = "FAIL";
 		}
 		std::string text = "";
 		text += "RESIBFT_FAST_MSGPREPARE[";
@@ -522,7 +522,7 @@ struct MsgPrecommitFast
 		std::string textFail = "";
 		if (isFail)
 		{
-			textFail = "FAIL"
+			textFail = "FAIL";
 		}
 		std::string text = "";
 		text += "RESIBFT_FAST_MSGPRECOMMIT[";

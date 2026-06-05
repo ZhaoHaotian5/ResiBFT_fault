@@ -313,7 +313,7 @@ bool ResiBFT::isTrustedReplicaIds(ReplicaID replicaId)
 
 bool ResiBFT::amTrustfailReplicaIds()
 {
-	if (this->trustfailRecords.find(this->replicaId))
+	if (this->trustfailRecords.find(this->replicaId) != this->trustfailRecords.end())
 	{
 		return true;
 	}
@@ -1391,7 +1391,7 @@ void ResiBFT::handleEarlierMessagesCommon()
 			// Store [justification_MsgPrecommitCommon]
 			this->respondMsgPrecommitCommon(justification_MsgPrecommitCommon);
 
-			MsgCommitCommon msgCommitCommon = this->log.firstMsgLdrprepareCommon(this->view);
+			MsgCommitCommon msgCommitCommon = this->log.firstMsgCommitCommon(this->view);
 			RoundData roundData_MsgCommitCommon = msgCommitCommon.roundData;
 			Signs signs_MsgCommitCommon = msgCommitCommon.signs;
 			Justification justification_MsgCommitCommon = Justification(roundData_MsgCommitCommon, signs_MsgCommitCommon);
@@ -1531,7 +1531,7 @@ void ResiBFT::handleEarlierMessagesFast()
 				bool isFail_MsgPrecommitFast = msgPrecommitFast.isFail;
 				RoundData roundData_MsgPrecommitFast = msgPrecommitFast.roundData;
 				Signs signs_MsgPrecommitFast = msgPrecommitFast.signs;
-				Justification justification_MsgPrecommit = Justification(roundData_MsgPrecommitFast, signs_MsgPrecommitFast);
+				Justification justification_MsgPrecommitFast = Justification(roundData_MsgPrecommitFast, signs_MsgPrecommitFast);
 				if (signs_MsgPrecommitFast.getSize() == this->trustedQuorumSize && this->verifyJustification(justification_MsgPrecommitFast))
 				{
 					Validation validation_MsgPrecommitFast = this->checkBlock(justification_MsgPrecommitFast, isFail_MsgPrecommitFast);
@@ -2353,7 +2353,7 @@ void ResiBFT::initiateMsgNewviewFast()
 					// Create [msgPrepareFast]
 					RoundData roundData_MsgPrepareFast = justification_MsgPrepareFast.getRoundData();
 					Signs signs_MsgPrepareFast = justification_MsgPrepareFast.getSigns();
-					MsgPrepareFast msgPrepareFast = MsgPrepareFast();
+					MsgPrepareFast msgPrepareFast;
 					if (!this->amTrustfailReplicaIds())
 					{
 						msgPrepareFast = MsgPrepareFast(roundData_MsgPrepareFast, signs_MsgPrepareFast);
@@ -2488,7 +2488,7 @@ void ResiBFT::initiateMsgPrepareFast(RoundData roundData_MsgPrepareFast)
 		Justification justification_MsgPrecommitFast = this->saveMsgPrepareFast(justification_MsgPrepareFast, isFail_MsgPrepareFast);
 		RoundData roundData_MsgPrecommitFast = justification_MsgPrecommitFast.getRoundData();
 		Signs signs_MsgPrecommitFast = justification_MsgPrecommitFast.getSigns();
-		MsgPrecommitFast msgPrecommitFast = MsgPrecommitFast();
+		MsgPrecommitFast msgPrecommitFast;
 		if (!this->amTrustfailReplicaIds())
 		{
 			bool isFail_MsgPrecommitFast = true;
@@ -2541,7 +2541,7 @@ void ResiBFT::initiateMsgPrepareFast(RoundData roundData_MsgPrepareFast)
 			Justification justification_MsgPrecommitFast = this->saveMsgPrepareFast(justification_MsgPrepareFast, isFail_MsgPrepareFast);
 			RoundData roundData_MsgPrecommitFast = justification_MsgPrecommitFast.getRoundData();
 			Signs signs_MsgPrecommitFast = justification_MsgPrecommitFast.getSigns();
-			MsgPrecommitFast msgPrecommitFast = MsgPrecommitFast();
+			MsgPrecommitFast msgPrecommitFast;
 			bool isFail_MsgPrecommitFast = true;
 			msgPrecommitFast = MsgPrecommitFast(isFail_MsgPrecommitFast, roundData_MsgPrecommitFast, signs_MsgPrecommitFast);
 			if (DEBUG_HELP)
@@ -2766,7 +2766,7 @@ void ResiBFT::respondMsgLdrprepareFast(Accumulator accumulator_MsgLdrprepareFast
 		// Create [msgPrepareFast] out of [block]
 		RoundData roundData_MsgPrepareFast = justification_MsgPrepareFast.getRoundData();
 		Signs signs_MsgPrepareFast = justification_MsgPrepareFast.getSigns();
-		MsgPrepareFast msgPrepareFast = MsgPrepareFast();
+		MsgPrepareFast msgPrepareFast;
 		if (!this->amTrustfailReplicaIds())
 		{
 			if (validations_MsgLdrprepareFast.isAccepted())
@@ -2803,7 +2803,7 @@ void ResiBFT::respondMsgPrepareFast(Justification justification_MsgPrepareFast, 
 	// Create [msgPrecommitFast]
 	RoundData roundData_MsgPrecommitFast = justification_MsgPrecommitFast.getRoundData();
 	Signs signs_MsgPrecommitFast = justification_MsgPrecommitFast.getSigns();
-	MsgPrecommitFast msgPrecommitFast = MsgPrecommitFast();
+	MsgPrecommitFast msgPrecommitFast;
 	if (!this->amTrustfailReplicaIds())
 	{
 		if (!isFail_MsgPrepareFast)
@@ -2996,7 +2996,7 @@ void ResiBFT::startNewViewFast(Validation validation)
 	Signs signs_MsgNewviewFast = justification_MsgNewviewFast.getSigns();
 	if (proposeView_MsgNewviewFast == this->view && phase_MsgNewviewFast == PHASE_NEWVIEW_FAST)
 	{
-		MsgNewviewFast msgNewviewFast = MsgNewviewFast();
+		MsgNewviewFast msgNewviewFast;
 		if (!this->amTrustfailReplicaIds())
 		{
 			msgNewviewFast = MsgNewviewFast(roundData_MsgNewviewFast, validation_MsgNewviewFast, signs_MsgNewviewFast);
