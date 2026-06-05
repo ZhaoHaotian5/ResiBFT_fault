@@ -1353,8 +1353,10 @@ void ResiBFT::handleEarlierMessagesCommon()
 		}
 
 		// Check if the view has already been locked
-		Justification justification_MsgPrecommitCommon = this->log.firstMsgPrecommitCommon(this->view);
-		Signs signs_MsgPrecommitCommon = justification_MsgPrecommitCommon.getSigns();
+		MsgPrecommitCommon msgPrecommitCommon = this->log.firstMsgPrecommitCommon(this->view);
+		RoundData roundData_MsgPrecommitCommon = msgPrecommitCommon.roundData;
+		Signs signs_MsgPrecommitCommon = msgPrecommitCommon.signs;
+		Justification justification_MsgPrecommitCommon = Justification(roundData_MsgPrecommitCommon, signs_MsgPrecommitCommon);
 		if (signs_MsgPrecommitCommon.getSize() == this->generalQuorumSize)
 		{
 			if (DEBUG_HELP)
@@ -1389,8 +1391,10 @@ void ResiBFT::handleEarlierMessagesCommon()
 			// Store [justification_MsgPrecommitCommon]
 			this->respondMsgPrecommitCommon(justification_MsgPrecommitCommon);
 
-			Justification justification_MsgCommitCommon = this->log.firstMsgCommitCommon(this->view);
-			Signs signs_MsgCommitCommon = justification_MsgCommitCommon.getSigns();
+			MsgCommitCommon msgCommitCommon = this->log.firstMsgLdrprepareCommon(this->view);
+			RoundData roundData_MsgCommitCommon = msgCommitCommon.roundData;
+			Signs signs_MsgCommitCommon = msgCommitCommon.signs;
+			Justification justification_MsgCommitCommon = Justification(roundData_MsgCommitCommon, signs_MsgCommitCommon);
 			if (signs_MsgCommitCommon.getSize() == this->generalQuorumSize)
 			{
 				this->executeBlockCommon(justification_MsgCommitCommon.getRoundData());
@@ -1398,9 +1402,11 @@ void ResiBFT::handleEarlierMessagesCommon()
 		}
 		else
 		{
-			Justification justification_MsgPrepareCommon = this->log.firstMsgPrepareCommon(this->view);
-			Signs signs_MsgPrepare = justification_MsgPrepareCommon.getSigns();
-			if (signs_MsgPrepare.getSize() == this->generalQuorumSize)
+			MsgPrepareCommon msgPrepareCommon = this->log.firstMsgPrepareCommon(this->view);
+			RoundData roundData_MsgPrepareCommon = msgPrepareCommon.roundData;
+			Signs signs_MsgPrepareCommon = msgPrepareCommon.signs;
+			Justification justification_MsgPrepareCommon = Justification(roundData_MsgPrepareCommon, signs_MsgPrepareCommon);
+			if (signs_MsgPrepareCommon.getSize() == this->generalQuorumSize)
 			{
 				if (DEBUG_HELP)
 				{
@@ -1485,68 +1491,24 @@ void ResiBFT::handleEarlierMessagesFast()
 	}
 	else
 	{
-		if (DEBUG_HELP)
-		{
-			std::cout << COLOUR_BLUE << this->printReplicaId() << "Replica handling earlier messages in fast path" << COLOUR_NORMAL << std::endl;
-		}
-
-		// Check if the view has already been entered in Precommit phase
-		Signs signs_MsgPrecommitFast = this->log.getMsgPrecommitFast(this->view, this->trustedQuorumSize);
-		if (signs_MsgPrecommitFast.getSize() == this->trustedQuorumSize)
+		if (this->amCommitteeReplicaIds())
 		{
 			if (DEBUG_HELP)
 			{
-				std::cout << COLOUR_BLUE << this->printReplicaId() << "Catching up using MsgPrecommit certificate in fast path" << COLOUR_NORMAL << std::endl;
+				std::cout << COLOUR_BLUE << this->printReplicaId() << "Committee member handling earlier messages in fast path" << COLOUR_NORMAL << std::endl;
 			}
 
-			// Skip the prepare phase and pre-commit phase
-			this->initializeMsgNewviewFast();
-			this->initializeMsgNewviewFast();
-
-			// Fill the block
-			if (DEBUG_HELP)
-			{
-				std::cout << COLOUR_BLUE << this->printReplicaId() << "Fill the block with MsgLdrprepare proposal" << COLOUR_NORMAL << std::endl;
-			}
-			MsgLdrprepareFast msgLdrprepare = this->log.firstMsgLdrprepareFast(this->view);
-			if (msgLdrprepare.signs.getSize() == 1)
-			{
-				ProposalFast proposalFast = msgLdrprepare.proposalFast;
-				Block block = proposalFast.getBlock();
-				this->blocks[this->view] = block;
-			}
-
-			// Execute the block
-			Justification justification_MsgPrecommitFast = this->log.firstMsgPrecommitFast(this->view);
-			RoundData roundData_MsgPrecommitFast = justification_MsgPrecommitFast.getRoundData();
-			Signs signs_MsgPrecommitFast = justification_MsgPrecommitFast.getSigns();
-			if (signs_MsgPrecommitFast.getSize() == this->trustedQuorumSize && this->verifyJustification(justification_MsgPrecommitFast))
-			{
-				bool isFail_MsgPrecommitFast = false;
-				Validation validation_MsgPrecommitFast = this->checkBlock(justification_MsgPrecommitFast, isFail_MsgPrecommitFast);
-				if (validation_MsgPrecommitFast.isAccepted())
-				{
-					Hash verifyHash_Checkpoint = this->blocks[this->view].getPreviousHash();
-					View verifyView_Checkpoint = this->view - 1;
-					Validations validations_Checkpoint = this->validations[this->view];
-					Signs signs_Checkpoint = signs_MsgPrecommitFast;
-					this->updateCheckpoint(verifyHash_Checkpoint, verifyView_Checkpoint, validations_Checkpoint, signs_Checkpoint);
-				}
-				this->executeBlockFast(roundData_MsgPrecommitFast, validation_MsgPrecommitFast);
-			}
-		}
-		else
-		{
-			Signs signs_MsgPrepareFast = this->log.getMsgPrepareFast(this->view, this->trustedQuorumSize);
-			if (signs_MsgPrepareFast.getSize() == this->trustedQuorumSize)
+			// Check if the view has already been entered in Precommit phase
+			Signs signs_MsgPrecommitFast = this->log.getMsgPrecommitFast(this->view, this->trustedQuorumSize);
+			if (signs_MsgPrecommitFast.getSize() == this->trustedQuorumSize)
 			{
 				if (DEBUG_HELP)
 				{
-					std::cout << COLOUR_BLUE << this->printReplicaId() << "Catching up using MsgPrepare certificate in fast path" << COLOUR_NORMAL << std::endl;
+					std::cout << COLOUR_BLUE << this->printReplicaId() << "Catching up using MsgPrecommit certificate in fast path" << COLOUR_NORMAL << std::endl;
 				}
-				Justification justification_MsgPrepareFast = this->log.firstMsgPrepareFast(this->view);
 
-				// Skip the prepare phase
+				// Skip the prepare phase and pre-commit phase
+				this->initializeMsgNewviewFast();
 				this->initializeMsgNewviewFast();
 
 				// Fill the block
@@ -1557,47 +1519,96 @@ void ResiBFT::handleEarlierMessagesFast()
 				MsgLdrprepareFast msgLdrprepareFast = this->log.firstMsgLdrprepareFast(this->view);
 				if (msgLdrprepareFast.signs.getSize() == 1)
 				{
+					Validations validations_MsgLdrprepareFast = msgLdrprepareFast.validations;
+					this->validations[this->view] = validations_MsgLdrprepareFast;
 					ProposalFast proposalFast = msgLdrprepareFast.proposalFast;
 					Block block = proposalFast.getBlock();
 					this->blocks[this->view] = block;
 				}
 
-				// Store [justification_MsgPrepareFast]
-				this->respondMsgPrepareFast(justification_MsgPrepareFast);
+				// Execute the block
+				MsgPrecommitFast msgPrecommitFast = this->log.firstMsgPrecommitFast(this->view);
+				bool isFail_MsgPrecommitFast = msgPrecommitFast.isFail;
+				RoundData roundData_MsgPrecommitFast = msgPrecommitFast.roundData;
+				Signs signs_MsgPrecommitFast = msgPrecommitFast.signs;
+				Justification justification_MsgPrecommit = Justification(roundData_MsgPrecommitFast, signs_MsgPrecommitFast);
+				if (signs_MsgPrecommitFast.getSize() == this->trustedQuorumSize && this->verifyJustification(justification_MsgPrecommitFast))
+				{
+					Validation validation_MsgPrecommitFast = this->checkBlock(justification_MsgPrecommitFast, isFail_MsgPrecommitFast);
+					if (validation_MsgPrecommitFast.isAccepted())
+					{
+						Hash verifyHash_Checkpoint = this->blocks[this->view].getPreviousHash();
+						View verifyView_Checkpoint = this->view - 1;
+						Validations validations_Checkpoint = this->validations[this->view];
+						Signs signs_Checkpoint = signs_MsgPrecommitFast;
+						this->updateCheckpoint(verifyHash_Checkpoint, verifyView_Checkpoint, validations_Checkpoint, signs_Checkpoint);
+					}
+					this->executeBlockFast(roundData_MsgPrecommitFast, validation_MsgPrecommitFast);
+				}
 			}
 			else
 			{
-				MsgLdrprepareFast msgLdrprepare = this->log.firstMsgLdrprepareFast(this->view);
-
-				// Check if the proposal has been stored
-				if (msgLdrprepare.signs.getSize() == 1)
+				Signs signs_MsgPrepareFast = this->log.getMsgPrepareFast(this->view, this->trustedQuorumSize);
+				if (signs_MsgPrepareFast.getSize() == this->trustedQuorumSize)
 				{
 					if (DEBUG_HELP)
 					{
-						std::cout << COLOUR_BLUE << this->printReplicaId() << "Catching up using MsgLdrprepare proposal in fast path" << COLOUR_NORMAL << std::endl;
+						std::cout << COLOUR_BLUE << this->printReplicaId() << "Catching up using MsgPrepare certificate in fast path" << COLOUR_NORMAL << std::endl;
 					}
-					ProposalFast proposalFast = msgLdrprepare.proposalFast;
-					Validations validations_MsgLdrprepareFast = msgLdrprepare.validations;
-					Accumulator accumulator_MsgLdrprepareFast = proposalFast.getAccumulator();
-					Block block = proposalFast.getBlock();
-					if (this->amCommitteeReplicaIds())
+					MsgPrepareFast msgPrepareFast = this->log.firstMsgPrepareFast(this->view);
+					bool isFail_MsgPrepareFast = msgPrepareFast.isFail;
+					RoundData roundData_MsgPrepareFast = msgPrepareFast.roundData;
+					Signs signs_MsgPrepareFast = msgPrepareFast.signs;
+					Justification justification_MsgPrepareFast = Justification(roundData_MsgPrepareFast, signs_MsgPrepareFast);
+
+					// Skip the prepare phase
+					this->initializeMsgNewviewFast();
+
+					// Fill the block
+					if (DEBUG_HELP)
 					{
-						this->respondMsgLdrprepareFast(accumulator_MsgLdrprepareFast, validations_MsgLdrprepareFast, block);
+						std::cout << COLOUR_BLUE << this->printReplicaId() << "Fill the block with MsgLdrprepare proposal" << COLOUR_NORMAL << std::endl;
 					}
-					else
+					MsgLdrprepareFast msgLdrprepareFast = this->log.firstMsgLdrprepareFast(this->view);
+					if (msgLdrprepareFast.signs.getSize() == 1)
+					{
+						Validations validations_MsgLdrprepareFast = msgLdrprepareFast.validations;
+						this->validations[this->view] = validations_MsgLdrprepareFast;
+						ProposalFast proposalFast = msgLdrprepareFast.proposalFast;
+						Block block = proposalFast.getBlock();
+						this->blocks[this->view] = block;
+					}
+
+					// Store [justification_MsgPrepareFast]
+					this->respondMsgPrepareFast(justification_MsgPrepareFast, isFail_MsgPrepareFast);
+				}
+				else
+				{
+					MsgLdrprepareFast msgLdrprepareFast = this->log.firstMsgLdrprepareFast(this->view);
+
+					// Check if the proposal has been stored
+					if (msgLdrprepareFast.signs.getSize() == 1)
 					{
 						if (DEBUG_HELP)
 						{
-							std::cout << COLOUR_BLUE << this->printReplicaId() << "Fill the block with MsgLdrprepare" << COLOUR_NORMAL << std::endl;
+							std::cout << COLOUR_BLUE << this->printReplicaId() << "Catching up using MsgLdrprepare proposal in fast path" << COLOUR_NORMAL << std::endl;
 						}
-						this->blocks[this->view] = block;
+						ProposalFast proposalFast = msgLdrprepareFast.proposalFast;
+						Validations validations_MsgLdrprepareFast = msgLdrprepareFast.validations;
+						Accumulator accumulator_MsgLdrprepareFast = proposalFast.getAccumulator();
+						Block block = proposalFast.getBlock();
+						this->respondMsgLdrprepareFast(accumulator_MsgLdrprepareFast, validations_MsgLdrprepareFast, block);
 					}
 				}
 			}
+			if (DEBUG_HELP)
+			{
+				std::cout << COLOUR_BLUE << this->printReplicaId() << "Replica handled earlier messages in fast path" << COLOUR_NORMAL << std::endl;
+			}
 		}
-		if (DEBUG_HELP)
+		else
 		{
-			std::cout << COLOUR_BLUE << this->printReplicaId() << "Replica handled earlier messages in fast path" << COLOUR_NORMAL << std::endl;
+
 		}
 	}
 }

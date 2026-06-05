@@ -417,7 +417,7 @@ MsgLdrprepareCommon Log::firstMsgLdrprepareCommon(View view)
 	return msgLdrprepare;
 }
 
-Justification Log::firstMsgPrepareCommon(View view)
+MsgPrepareCommon Log::firstMsgPrepareCommon(View view)
 {
 	std::map<View, std::set<MsgPrepareCommon>>::iterator itView = this->preparesCommon.find(view);
 	if (itView != this->preparesCommon.end())
@@ -427,17 +427,16 @@ Justification Log::firstMsgPrepareCommon(View view)
 		{
 			std::set<MsgPrepareCommon>::iterator itMsg = msgPrepares.begin();
 			MsgPrepareCommon msgPrepare = *itMsg;
-			RoundData roundData_MsgPrepare = msgPrepare.roundData;
-			Signs signs_MsgPrepare = msgPrepare.signs;
-			Justification justification_MsgPrepare = Justification(roundData_MsgPrepare, signs_MsgPrepare);
-			return justification_MsgPrepare;
+			return msgPrepare;
 		}
 	}
-	Justification justification = Justification();
-	return justification;
+	RoundData roundData;
+	Signs signs;
+	MsgPrepareCommon msgPrepare = MsgPrepareCommon(roundData, signs);
+	return msgPrepare;
 }
 
-Justification Log::firstMsgPrecommitCommon(View view)
+MsgPrecommitCommon Log::firstMsgPrecommitCommon(View view)
 {
 	std::map<View, std::set<MsgPrecommitCommon>>::iterator itView = this->precommitsCommon.find(view);
 	if (itView != this->precommitsCommon.end())
@@ -447,17 +446,16 @@ Justification Log::firstMsgPrecommitCommon(View view)
 		{
 			std::set<MsgPrecommitCommon>::iterator itMsg = msgPrecommits.begin();
 			MsgPrecommitCommon msgPrecommit = *itMsg;
-			RoundData roundData_MsgPrecommit = msgPrecommit.roundData;
-			Signs signs_MsgPrecommit = msgPrecommit.signs;
-			Justification justification_MsgPrecommit = Justification(roundData_MsgPrecommit, signs_MsgPrecommit);
-			return justification_MsgPrecommit;
+			return msgPrecommit;
 		}
 	}
-	Justification justification = Justification();
-	return justification;
+	RoundData roundData;
+	Signs signs;
+	MsgPrecommitCommon msgPrecommit = MsgPrecommitCommon(roundData, signs);
+	return msgPrecommit;
 }
 
-Justification Log::firstMsgCommitCommon(View view)
+MsgCommitCommon Log::firstMsgCommitCommon(View view)
 {
 	std::map<View, std::set<MsgCommitCommon>>::iterator itView = this->commitsCommon.find(view);
 	if (itView != this->commitsCommon.end())
@@ -467,14 +465,13 @@ Justification Log::firstMsgCommitCommon(View view)
 		{
 			std::set<MsgCommitCommon>::iterator itMsg = msgCommits.begin();
 			MsgCommitCommon msgCommit = *itMsg;
-			RoundData roundData_MsgCommit = msgCommit.roundData;
-			Signs signs_MsgCommit = msgCommit.signs;
-			Justification justification_MsgCommit = Justification(roundData_MsgCommit, signs_MsgCommit);
-			return justification_MsgCommit;
+			return msgCommit;
 		}
 	}
-	Justification justification = Justification();
-	return justification;
+	RoundData roundData;
+	Signs signs;
+	MsgCommitCommon msgCommit = MsgCommitCommon(roundData, signs);
+	return msgCommit;
 }
 
 // Fast ResiBFT
@@ -918,7 +915,7 @@ MsgLdrprepareFast Log::firstMsgLdrprepareFast(View view)
 	return msgLdrprepare;
 }
 
-Justification Log::firstMsgPrepareFast(View view)
+MsgPrepareFast Log::firstMsgPrepareFast(View view)
 {
 	std::map<View, std::set<MsgPrepareFast>>::iterator itView = this->preparesFast.find(view);
 	if (itView != this->preparesFast.end())
@@ -928,17 +925,16 @@ Justification Log::firstMsgPrepareFast(View view)
 		{
 			std::set<MsgPrepareFast>::iterator itMsg = msgPrepares.begin();
 			MsgPrepareFast msgPrepare = *itMsg;
-			RoundData roundData_MsgPrepare = msgPrepare.roundData;
-			Signs signs_MsgPrepare = msgPrepare.signs;
-			Justification justification_MsgPrepare = Justification(roundData_MsgPrepare, signs_MsgPrepare);
-			return justification_MsgPrepare;
+			return msgPrepare;
 		}
 	}
-	Justification justification = Justification();
-	return justification;
+	RoundData roundData;
+	Signs signs;
+	MsgPrepareFast msgPrepare = MsgPrepareFast(roundData, signs);
+	return msgPrepare;
 }
 
-Justification Log::firstMsgPrecommitFast(View view)
+MsgPrecommitFast Log::firstMsgPrecommitFast(View view)
 {
 	std::map<View, std::set<MsgPrecommitFast>>::iterator itView = this->precommitsFast.find(view);
 	if (itView != this->precommitsFast.end())
@@ -948,14 +944,13 @@ Justification Log::firstMsgPrecommitFast(View view)
 		{
 			std::set<MsgPrecommitFast>::iterator itMsg = msgPrecommits.begin();
 			MsgPrecommitFast msgPrecommit = *itMsg;
-			RoundData roundData_MsgPrecommit = msgPrecommit.roundData;
-			Signs signs_MsgPrecommit = msgPrecommit.signs;
-			Justification justification_MsgPrecommit = Justification(roundData_MsgPrecommit, signs_MsgPrecommit);
-			return justification_MsgPrecommit;
+			return msgPrecommit;
 		}
 	}
-	Justification justification = Justification();
-	return justification;
+	RoundData roundData;
+	Signs signs;
+	MsgPrecommitFast msgPrecommit = MsgPrecommitFast(roundData, signs);
+	return msgPrecommit;
 }
 
 std::string Log::toPrint()

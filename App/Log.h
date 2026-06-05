@@ -51,9 +51,9 @@ public:
 
 	// Find the first message
 	MsgLdrprepareCommon firstMsgLdrprepareCommon(View view);
-	Justification firstMsgPrepareCommon(View view);
-	Justification firstMsgPrecommitCommon(View view);
-	Justification firstMsgCommitCommon(View view);
+	MsgPrepareCommon firstMsgPrepareCommon(View view);
+	MsgPrecommitCommon firstMsgPrecommitCommon(View view);
+	MsgCommitCommon firstMsgCommitCommon(View view);
 
 	// Fast ResiBFT
 	// Return the number of signatures
@@ -76,8 +76,8 @@ public:
 
 	// Find the first message
 	MsgLdrprepareFast firstMsgLdrprepareFast(View view);
-	Justification firstMsgPrepareFast(View view);
-	Justification firstMsgPrecommitFast(View view);
+	MsgPrepareFast firstMsgPrepareFast(View view);
+	MsgPrecommitFast firstMsgPrecommitFast(View view);
 
 	// Print
 	std::string toPrint();

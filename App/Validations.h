@@ -1,6 +1,7 @@
 #ifndef VALIDATIONS_H
 #define VALIDATIONS_H
 
+#include <cmath>
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>

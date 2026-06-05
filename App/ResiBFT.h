@@ -2,6 +2,7 @@
 #define RESIBFT_H
 
 #include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <functional>
 #include <iostream>
