@@ -1532,9 +1532,10 @@ void ResiBFT::handleEarlierMessagesFast()
 				RoundData roundData_MsgPrecommitFast = msgPrecommitFast.roundData;
 				Signs signs_MsgPrecommitFast = msgPrecommitFast.signs;
 				Justification justification_MsgPrecommitFast = Justification(roundData_MsgPrecommitFast, signs_MsgPrecommitFast);
-				if (signs_MsgPrecommitFast.getSize() == this->trustedQuorumSize && this->verifyJustification(justification_MsgPrecommitFast))
+				Validation validation_MsgPrecommitFast = Validation();
+				if (signs_MsgPrecommitFast.getSize() == this->trustedQuorumSize && !isFail_MsgPrecommitFast && this->verifyJustification(justification_MsgPrecommitFast))
 				{
-					Validation validation_MsgPrecommitFast = this->checkBlock(justification_MsgPrecommitFast, isFail_MsgPrecommitFast);
+					validation_MsgPrecommitFast = this->checkBlock(justification_MsgPrecommitFast, isFail_MsgPrecommitFast);
 					if (DEBUG_HELP)
 					{
 						std::cout << COLOUR_BLUE << this->printReplicaId() << "Checking MsgPrecommit in fast path by earlier messages: " << validation_MsgPrecommitFast.toPrint() << COLOUR_NORMAL << std::endl;
@@ -1548,6 +1549,10 @@ void ResiBFT::handleEarlierMessagesFast()
 						Signs signs_Checkpoint = signs_MsgPrecommitFast;
 						this->updateCheckpoint(verifyHash_Checkpoint, verifyView_Checkpoint, validations_Checkpoint, signs_Checkpoint);
 					}
+				}
+				else
+				{
+					validation_MsgPrecommitFast = this->checkBlock(justification_MsgPrecommit, isFail_MsgPrecommitFast);
 				}
 				this->executeBlockFast(roundData_MsgPrecommitFast, validation_MsgPrecommitFast);
 			}
@@ -2031,9 +2036,10 @@ void ResiBFT::handleMsgPrecommitFast(MsgPrecommitFast msgPrecommitFast)
 			else
 			{
 				bool isFail_MsgPrecommitFast = msgPrecommitFast.isFail;
+				Validation validation_MsgPrecommitFast = Validation();
 				if (signs_MsgPrecommitFast.getSize() == this->trustedQuorumSize && !isFail_MsgPrecommitFast)
 				{
-					Validation validation_MsgPrecommitFast = this->checkBlock(justification_MsgPrecommit, isFail_MsgPrecommitFast);
+					validation_MsgPrecommitFast = this->checkBlock(justification_MsgPrecommit, isFail_MsgPrecommitFast);
 					if (DEBUG_HELP)
 					{
 						std::cout << COLOUR_BLUE << this->printReplicaId() << "Checking MsgPrecommit in fast path: " << validation_MsgPrecommitFast.toPrint() << COLOUR_NORMAL << std::endl;
@@ -2047,6 +2053,10 @@ void ResiBFT::handleMsgPrecommitFast(MsgPrecommitFast msgPrecommitFast)
 						Signs signs_Checkpoint = signs_MsgPrecommitFast;
 						this->updateCheckpoint(verifyHash_Checkpoint, verifyView_Checkpoint, validations_Checkpoint, signs_Checkpoint);
 					}
+				}
+				else
+				{
+					validation_MsgPrecommitFast = this->checkBlock(justification_MsgPrecommit, isFail_MsgPrecommitFast);
 				}
 				this->executeBlockFast(roundData_MsgPrecommitFast, validation_MsgPrecommitFast);
 			}
