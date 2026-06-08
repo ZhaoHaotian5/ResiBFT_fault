@@ -1535,6 +1535,11 @@ void ResiBFT::handleEarlierMessagesFast()
 				if (signs_MsgPrecommitFast.getSize() == this->trustedQuorumSize && this->verifyJustification(justification_MsgPrecommitFast))
 				{
 					Validation validation_MsgPrecommitFast = this->checkBlock(justification_MsgPrecommitFast, isFail_MsgPrecommitFast);
+					if (DEBUG_HELP)
+					{
+						std::cout << COLOUR_BLUE << this->printReplicaId() << "Checking MsgPrecommit in fast path by earlier messages: " << validation_MsgPrecommitFast.toPrint() << COLOUR_NORMAL << std::endl;
+					}
+
 					if (validation_MsgPrecommitFast.isAccepted())
 					{
 						Hash verifyHash_Checkpoint = this->blocks[this->view].getPreviousHash();
@@ -1543,8 +1548,8 @@ void ResiBFT::handleEarlierMessagesFast()
 						Signs signs_Checkpoint = signs_MsgPrecommitFast;
 						this->updateCheckpoint(verifyHash_Checkpoint, verifyView_Checkpoint, validations_Checkpoint, signs_Checkpoint);
 					}
-					this->executeBlockFast(roundData_MsgPrecommitFast, validation_MsgPrecommitFast);
 				}
+				this->executeBlockFast(roundData_MsgPrecommitFast, validation_MsgPrecommitFast);
 			}
 			else
 			{
@@ -1603,12 +1608,11 @@ void ResiBFT::handleEarlierMessagesFast()
 			}
 			if (DEBUG_HELP)
 			{
-				std::cout << COLOUR_BLUE << this->printReplicaId() << "Replica handled earlier messages in fast path" << COLOUR_NORMAL << std::endl;
+				std::cout << COLOUR_BLUE << this->printReplicaId() << "Committee member handled earlier messages in fast path" << COLOUR_NORMAL << std::endl;
 			}
 		}
 		else
 		{
-
 		}
 	}
 }
@@ -2030,6 +2034,11 @@ void ResiBFT::handleMsgPrecommitFast(MsgPrecommitFast msgPrecommitFast)
 				if (signs_MsgPrecommitFast.getSize() == this->trustedQuorumSize && !isFail_MsgPrecommitFast)
 				{
 					Validation validation_MsgPrecommitFast = this->checkBlock(justification_MsgPrecommit, isFail_MsgPrecommitFast);
+					if (DEBUG_HELP)
+					{
+						std::cout << COLOUR_BLUE << this->printReplicaId() << "Checking MsgPrecommit in fast path: " << validation_MsgPrecommitFast.toPrint() << COLOUR_NORMAL << std::endl;
+					}
+
 					if (validation_MsgPrecommitFast.isAccepted())
 					{
 						Hash verifyHash_Checkpoint = this->blocks[this->view].getPreviousHash();
@@ -2038,9 +2047,8 @@ void ResiBFT::handleMsgPrecommitFast(MsgPrecommitFast msgPrecommitFast)
 						Signs signs_Checkpoint = signs_MsgPrecommitFast;
 						this->updateCheckpoint(verifyHash_Checkpoint, verifyView_Checkpoint, validations_Checkpoint, signs_Checkpoint);
 					}
-
-					this->executeBlockFast(roundData_MsgPrecommitFast, validation_MsgPrecommitFast);
 				}
+				this->executeBlockFast(roundData_MsgPrecommitFast, validation_MsgPrecommitFast);
 			}
 		}
 		else
@@ -2083,7 +2091,13 @@ void ResiBFT::handleMsgValidationFast(MsgValidationFast msgValidationFast)
 				this->blocks[this->view] = block;
 				this->validations[this->view] = validations_MsgValidationFast;
 				bool isFail_MsgValidationFast = validations_MsgValidationFast.isAccepted();
+
 				Validation validation_MsgValidationFast = this->checkBlock(justification_MsgValidationFast, isFail_MsgValidationFast);
+				if (DEBUG_HELP)
+				{
+					std::cout << COLOUR_BLUE << this->printReplicaId() << "Checking MsgValidation in fast path: " << validation_MsgValidationFast.toPrint() << COLOUR_NORMAL << std::endl;
+				}
+				
 				if (validation_MsgValidationFast.isAccepted())
 				{
 					Hash verifyHash_Checkpoint = this->blocks[this->view].getPreviousHash();
@@ -2591,7 +2605,13 @@ void ResiBFT::initiateMsgPrecommitFast(RoundData roundData_MsgPrecommitFast)
 		// Update [validation_MsgPrecommitFast]
 		Justification justification_MsgPrecommitFast = Justification(roundData_MsgPrecommitFast, signs_MsgPrecommitFast);
 		bool isFail_MsgPrecommitFast = false;
+
 		Validation validation_MsgPrecommitFast = this->checkBlock(justification_MsgPrecommitFast, isFail_MsgPrecommitFast);
+		if (DEBUG_HELP)
+		{
+			std::cout << COLOUR_BLUE << this->printReplicaId() << "Checking MsgValidation in fast path: " << validation_MsgPrecommitFast.toPrint() << COLOUR_NORMAL << std::endl;
+		}
+
 		if (validation_MsgPrecommitFast.isAccepted())
 		{
 			Hash verifyHash_Checkpoint = this->blocks[this->view].getPreviousHash();
@@ -2626,7 +2646,7 @@ void ResiBFT::initiateMsgPrecommitFast(RoundData roundData_MsgPrecommitFast)
 		this->sendMsgPrecommitFast(msgPrecommitFast, recipients_msgPrecommitFast);
 		if (DEBUG_HELP)
 		{
-			std::cout << COLOUR_BLUE << this->printReplicaId() << "Sent MsgPrecommit to replicas in fast path: " << msgPrecommitFast.toPrint() << COLOUR_NORMAL << std::endl;
+			std::cout << COLOUR_BLUE << this->printReplicaId() << "Sent the failed MsgPrecommit to replicas in fast path: " << msgPrecommitFast.toPrint() << COLOUR_NORMAL << std::endl;
 		}
 
 		// Create [msgValidationFast]
@@ -2646,7 +2666,13 @@ void ResiBFT::initiateMsgPrecommitFast(RoundData roundData_MsgPrecommitFast)
 
 		// Update [validation_MsgPrecommitFast]
 		Justification justification_MsgPrecommitFast = Justification(roundData_MsgPrecommitFast, signs_MsgPrecommitFastAll);
+
 		Validation validation_MsgPrecommitFast = this->checkBlock(justification_MsgPrecommitFast, isFail_MsgPrecommitFast);
+		if (DEBUG_HELP)
+		{
+			std::cout << COLOUR_BLUE << this->printReplicaId() << "Checking MsgValidation in fast path: " << validation_MsgPrecommitFast.toPrint() << COLOUR_NORMAL << std::endl;
+		}
+
 		if (validation_MsgPrecommitFast.isAccepted())
 		{
 			Hash verifyHash_Checkpoint = this->blocks[this->view].getPreviousHash();
@@ -2968,7 +2994,7 @@ void ResiBFT::startNewViewFast(Validation validation)
 		MsgNewviewFast msgNewviewFast = MsgNewviewFast(roundData_MsgNewviewFast, validation_MsgNewviewFast, signs_MsgNewviewFast);
 		if (this->amTrustfailReplicaIds())
 		{
-			isFail_MsgNewviewFast = true;
+			bool isFail_MsgNewviewFast = true;
 			msgNewviewFast = MsgNewviewFast(isFail_MsgNewviewFast, roundData_MsgNewviewFast, validation_MsgNewviewFast, signs_MsgNewviewFast);
 		}
 
@@ -3108,7 +3134,7 @@ ResiBFT::ResiBFT(KeysFunctions keysFunctions, ReplicaID replicaId, unsigned int 
 	this->path = COMMON_PATH;
 	this->view = 0;
 	this->generalQuorumSize = this->numReplicas - this->numFaults;
-	this->trustedQuorumSize = ceil((NUM_COMMITTEE_MEMBERS + 1) / 2);
+	this->trustedQuorumSize = ceil((NUM_COMMITTEE_MEMBERS + 1) / 2.0);
 
 	if (DEBUG_HELP)
 	{

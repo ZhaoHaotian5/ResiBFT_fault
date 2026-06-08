@@ -62,7 +62,7 @@ int main(int argc, char const *argv[])
 	}
 	std::cout << COLOUR_ORANGE << printReplicaId() << "numGeneralReplicas = " << numGeneralReplicas << COLOUR_NORMAL << std::endl;
 
-    generalRecords.clear();
+	generalRecords.clear();
 	if (argc > 3)
 	{
 		std::string generalRecordsStr = argv[3];
@@ -79,6 +79,17 @@ int main(int argc, char const *argv[])
 			}
 		}
 	}
+
+	std::cout << COLOUR_ORANGE << printReplicaId() << "generalRecords=[";
+	for (std::set<ReplicaID>::iterator it = generalRecords.begin(); it != generalRecords.end(); it++)
+	{
+		if (it != generalRecords.begin())
+		{
+			std::cout << ",";
+		}
+		std::cout << *it;
+	}
+	std::cout << "]" << COLOUR_NORMAL << std::endl;
 
 	if (generalRecords.size() != numGeneralReplicas)
 	{
@@ -108,6 +119,17 @@ int main(int argc, char const *argv[])
 		}
 	}
 
+	std::cout << COLOUR_ORANGE << printReplicaId() << "trustedRecords=[";
+	for (std::set<ReplicaID>::iterator it = trustedRecords.begin(); it != trustedRecords.end(); it++)
+	{
+		if (it != trustedRecords.begin())
+		{
+			std::cout << ",";
+		}
+		std::cout << *it;
+	}
+	std::cout << "]" << COLOUR_NORMAL << std::endl;
+
 	if (trustedRecords.size() != numTrustedReplicas)
 	{
 		std::cout << COLOUR_RED << printReplicaId() << "Invalid trusted records size. Expected " << numTrustedReplicas << ", but got " << trustedRecords.size() << COLOUR_NORMAL << std::endl;
@@ -135,6 +157,17 @@ int main(int argc, char const *argv[])
 			}
 		}
 	}
+
+	std::cout << COLOUR_ORANGE << printReplicaId() << "trustfailRecords=[";
+	for (std::set<ReplicaID>::iterator it = trustfailRecords.begin(); it != trustfailRecords.end(); it++)
+	{
+		if (it != trustfailRecords.begin())
+		{
+			std::cout << ",";
+		}
+		std::cout << *it;
+	}
+	std::cout << "]" << COLOUR_NORMAL << std::endl;
 
 	if (trustfailRecords.size() != numTrustfailReplicas)
 	{
