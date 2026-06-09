@@ -921,6 +921,20 @@ Justification ResiBFT::saveMsgPrepareFast(Justification justification_MsgPrepare
 	return justification_MsgPrecommit;
 }
 
+Justification ResiBFT::respondProposalFast2Common(Hash proposeHash, Justification justification_MsgNewviewFast)
+{
+	Justification justification_MsgPrepareCommon = Justification();
+	Hash_t proposeHash_t;
+	setHash(proposeHash, &proposeHash_t);
+	Justification_t justification_MsgNewviewFast_t;
+	setJustification(justification_MsgNewviewFast, &justification_MsgNewviewFast_t);
+	Justification_t justification_MsgPrepareCommon_t;
+	sgx_status_t enclave_status_t;
+	sgx_status_t ecall_status_t;
+	ecall_status_t = TEE_respondProposalFast2Common(global_eid, &enclave_status_t, &proposeHash_t, &justification_MsgNewviewFast_t, &justification_MsgPrepareCommon_t);
+	justification_MsgPrepareCommon = getJustification(&justification_MsgPrepareCommon_t);
+}
+
 Validations ResiBFT::buildValidations(std::set<MsgNewviewFast> msgNewviewFasts)
 {
 	Validation validations_MsgNewviewFast[NUM_ACTIVE_REPLICAS];
@@ -1552,7 +1566,7 @@ void ResiBFT::handleEarlierMessagesFast()
 				}
 				else
 				{
-					validation_MsgPrecommitFast = this->checkBlock(justification_MsgPrecommit, isFail_MsgPrecommitFast);
+					validation_MsgPrecommitFast = this->checkBlock(justification_MsgPrecommitFast, isFail_MsgPrecommitFast);
 				}
 				this->executeBlockFast(roundData_MsgPrecommitFast, validation_MsgPrecommitFast);
 			}
@@ -2107,7 +2121,7 @@ void ResiBFT::handleMsgValidationFast(MsgValidationFast msgValidationFast)
 				{
 					std::cout << COLOUR_BLUE << this->printReplicaId() << "Checking MsgValidation in fast path: " << validation_MsgValidationFast.toPrint() << COLOUR_NORMAL << std::endl;
 				}
-				
+
 				if (validation_MsgValidationFast.isAccepted())
 				{
 					Hash verifyHash_Checkpoint = this->blocks[this->view].getPreviousHash();
@@ -2210,7 +2224,7 @@ void ResiBFT::initiateMsgNewviewCommon()
 	{
 		if (DEBUG_HELP)
 		{
-			std::cout << COLOUR_BLUE << this->printReplicaId() << "Bad justification of MsgPrepare in common path" << justification_MsgPrepareCommon.toPrint() << COLOUR_NORMAL << std::endl;
+			std::cout << COLOUR_BLUE << this->printReplicaId() << "Bad justification of MsgPrepare in common path: " << justification_MsgPrepareCommon.toPrint() << COLOUR_NORMAL << std::endl;
 		}
 	}
 }
@@ -2433,7 +2447,7 @@ void ResiBFT::initiateMsgNewviewFast()
 			Block block = this->createNewBlock(justifyHash_MsgNewviewFast);
 
 			// Create [justification_MsgPrepareCommon] for that [block]
-			Justification justification_MsgPrepareCommon = this->respondProposalCommon(block.hash(), justification_MsgNewviewFast);
+			Justification justification_MsgPrepareCommon = this->respondProposalFast2Common(block.hash(), justification_MsgNewviewFast);
 			if (justification_MsgPrepareCommon.isSet())
 			{
 				if (DEBUG_HELP)
@@ -2474,7 +2488,7 @@ void ResiBFT::initiateMsgNewviewFast()
 			{
 				if (DEBUG_HELP)
 				{
-					std::cout << COLOUR_BLUE << this->printReplicaId() << "Bad justification of MsgPrepare in common path" << justification_MsgPrepareCommon.toPrint() << COLOUR_NORMAL << std::endl;
+					std::cout << COLOUR_BLUE << this->printReplicaId() << "Bad justification of MsgPrepare in common path: " << justification_MsgPrepareCommon.toPrint() << COLOUR_NORMAL << std::endl;
 				}
 			}
 		}

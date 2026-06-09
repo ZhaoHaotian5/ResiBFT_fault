@@ -390,3 +390,28 @@ sgx_status_t TEE_saveMsgPrepareFast(Justification_t *justification_MsgPrepareFas
 
 	return status_t;
 }
+
+sgx_status_t TEE_respondProposalFast2Common(Hash_t *proposeHash_t, Justification_t *justification_MsgNewviewFast_t, Justification_t *justification_MsgPrepareCommon_t)
+{
+	sgx_status_t status_t = SGX_SUCCESS;
+
+	RoundData_t roundData_MsgNewviewFast_t = justification_MsgNewviewFast_t->roundData;
+	View proposeView_MsgNewviewFast = roundData_MsgNewviewFast_t.proposeView;
+	Hash_t justifyHash_MsgNewviewFast_t = roundData_MsgNewviewFast_t.justifyHash;
+	View justifyView_MsgNewviewFast_t = roundData_MsgNewviewFast_t.justifyView;
+	Phase phase_MsgNewviewFast_t = roundData_MsgNewviewFast_t.phase;
+	if (verifyJustification_t(justification_MsgNewviewCommon_t) && view_t == proposeView_MsgNewviewFast && phase_MsgNewviewFast_t == PHASE_NEWVIEW_FAST)
+	{
+		*justification_MsgPrepareCommon_t = updateRoundDataCommon_t(*proposeHash_t, justifyHash_MsgNewviewFast_t, justifyView_MsgNewviewFast_t);
+	}
+	else
+	{
+		justification_MsgPrepareCommon_t->set = false;
+		if (DEBUG_TEE)
+		{
+			TEE_Print((printReplicaId_t() + " fail to respond proposal in common path").c_str());
+		}
+	}
+
+	return status_t;
+}

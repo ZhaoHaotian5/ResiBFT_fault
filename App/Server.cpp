@@ -143,17 +143,20 @@ int main(int argc, char const *argv[])
 
 	if (argc > 7)
 	{
-		std::string trustfailRecordsStr = argv[7];
-		std::stringstream ss(trustfailRecordsStr);
-		std::string item;
-
-		while (std::getline(ss, item, ','))
+		if (numTrustfailReplicas > 0)
 		{
-			if (!item.empty())
+			std::string trustfailRecordsStr = argv[7];
+			std::stringstream ss(trustfailRecordsStr);
+			std::string item;
+
+			while (std::getline(ss, item, ','))
 			{
-				ReplicaID trustfailReplicaId;
-				sscanf(item.c_str(), "%d", &trustfailReplicaId);
-				trustfailRecords.insert(trustfailReplicaId);
+				if (!item.empty())
+				{
+					ReplicaID trustfailReplicaId;
+					sscanf(item.c_str(), "%d", &trustfailReplicaId);
+					trustfailRecords.insert(trustfailReplicaId);
+				}
 			}
 		}
 	}

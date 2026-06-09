@@ -156,6 +156,8 @@ private:
 	Justification respondProposalFast(Hash proposeHash, Accumulator accumulator_MsgLdrprepareFast);
 	Justification saveMsgPrepareFast(Justification justification_MsgPrepareFast, bool isFail_MsgPrepareFast);
 
+	Justification respondProposalFast2Common(Hash proposeHash, Justification justification_MsgNewviewFast);
+
 	Validations buildValidations(std::set<MsgNewviewFast> msgNewviewFasts);
 	Accumulator buildAccumulator(std::set<MsgNewviewFast> msgNewviewFasts);
 
