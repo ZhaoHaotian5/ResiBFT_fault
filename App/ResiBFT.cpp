@@ -542,11 +542,19 @@ void ResiBFT::executeBlockCommon(RoundData roundData_MsgCommitCommon)
 	if (this->committee.isSet() && !this->committee.isEmpty())
 	{
 		this->path = FAST_PATH;
+		if (DEBUG_BASIC)
+		{
+			std::cout << COLOUR_RED << this->printReplicaId() << "Change to fast path variable" << COLOUR_NORMAL << std::endl;
+		}
 		statistics.addCommon2fast(roundData_MsgCommitCommon.getProposeView());
 	}
 	if (this->committee.isEmpty())
 	{
 		this->path = COMMON_PATH;
+		if (DEBUG_BASIC)
+		{
+			std::cout << COLOUR_RED << this->printReplicaId() << "Change to common path variable" << COLOUR_NORMAL << std::endl;
+		}
 		statistics.addFast2common(roundData_MsgCommitCommon.getProposeView());
 	}
 
@@ -562,11 +570,12 @@ void ResiBFT::executeBlockCommon(RoundData roundData_MsgCommitCommon)
 		}
 		else
 		{
-			this->common2fast();
 			if (DEBUG_BASIC)
 			{
 				std::cout << COLOUR_RED << this->printReplicaId() << "Change from common path to fast path" << COLOUR_NORMAL << std::endl;
 			}
+			this->common2fast();
+
 			Hash proposeHash_MsgCommitCommon = roundData_MsgCommitCommon.getProposeHash();
 			View proposeView_MsgCommitCommon = roundData_MsgCommitCommon.getProposeView();
 

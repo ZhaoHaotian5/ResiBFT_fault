@@ -400,9 +400,21 @@ sgx_status_t TEE_respondProposalFast2Common(Hash_t *proposeHash_t, Justification
 	Hash_t justifyHash_MsgNewviewFast_t = roundData_MsgNewviewFast_t.justifyHash;
 	View justifyView_MsgNewviewFast_t = roundData_MsgNewviewFast_t.justifyView;
 	Phase phase_MsgNewviewFast_t = roundData_MsgNewviewFast_t.phase;
-	if (verifyJustification_t(justification_MsgNewviewCommon_t) && view_t == proposeView_MsgNewviewFast && phase_MsgNewviewFast_t == PHASE_NEWVIEW_FAST)
+	if (DEBUG_TEE)
 	{
+		TEE_Print((printReplicaId_t() + " States: Phase " + std::to_string(phase_t)).c_str());
+	}
+	if (verifyJustification_t(justification_MsgNewviewFast_t) && view_t == proposeView_MsgNewviewFast && phase_MsgNewviewFast_t == PHASE_NEWVIEW_FAST)
+	{
+		if (DEBUG_TEE)
+		{
+			TEE_Print((printReplicaId_t() + " Verified: ").c_str());
+		}
 		*justification_MsgPrepareCommon_t = updateRoundDataCommon_t(*proposeHash_t, justifyHash_MsgNewviewFast_t, justifyView_MsgNewviewFast_t);
+		if (DEBUG_TEE)
+		{
+			TEE_Print((printReplicaId_t() + " Updated: proposeHash " + hash2string_t(justification_MsgPrepareCommon_t->roundData.proposeHash) + " proposeView " + std::to_string(justification_MsgPrepareCommon_t->roundData.proposeView) + " justifyHash " + hash2string_t(justification_MsgPrepareCommon_t->roundData.justifyHash) + " justifyView " + std::to_string(justification_MsgPrepareCommon_t->roundData.justifyView) + " phase " + std::to_string(justification_MsgPrepareCommon_t->roundData.phase)).c_str());
+		}
 	}
 	else
 	{
