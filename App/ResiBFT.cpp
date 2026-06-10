@@ -932,6 +932,10 @@ Justification ResiBFT::saveMsgPrepareFast(Justification justification_MsgPrepare
 
 Justification ResiBFT::respondProposalFast2Common(Hash proposeHash, Justification justification_MsgNewviewFast)
 {
+	if (DEBUG_HELP)
+	{
+		std::cout << COLOUR_BLUE << this->printReplicaId() << "Fast2Common: " << COLOUR_NORMAL << std::endl;
+	}
 	Justification justification_MsgPrepareCommon = Justification();
 	Hash_t proposeHash_t;
 	setHash(proposeHash, &proposeHash_t);
@@ -942,6 +946,10 @@ Justification ResiBFT::respondProposalFast2Common(Hash proposeHash, Justificatio
 	sgx_status_t ecall_status_t;
 	ecall_status_t = TEE_respondProposalFast2Common(global_eid, &enclave_status_t, &proposeHash_t, &justification_MsgNewviewFast_t, &justification_MsgPrepareCommon_t);
 	justification_MsgPrepareCommon = getJustification(&justification_MsgPrepareCommon_t);
+	if (DEBUG_HELP)
+	{
+		std::cout << COLOUR_BLUE << this->printReplicaId() << "Fast2Common: " << COLOUR_NORMAL << std::endl;
+	}
 }
 
 Validations ResiBFT::buildValidations(std::set<MsgNewviewFast> msgNewviewFasts)
