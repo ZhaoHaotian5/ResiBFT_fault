@@ -249,3 +249,26 @@ Justification GeneralRep::initializeMsgNewviewFast()
 	Justification justification_MsgNewviewFast = this->updateRoundDataFast(Hash(false), this->prepareHash, this->prepareView);
 	return justification_MsgNewviewFast;
 }
+
+// Fast to common ResiBFT
+Justification GeneralRep::respondProposalFast2Common(Nodes nodes, Hash proposeHash, Justification justification_MsgNewviewFast)
+{
+	RoundData roundData_MsgNewviewFast = justification_MsgNewviewFast.getRoundData();
+	View proposeView_MsgNewviewFast = roundData_MsgNewviewFast.getProposeView();
+	Hash justifyHash_MsgNewviewFast = roundData_MsgNewviewFast.getJustifyHash();
+	View justifyView_MsgNewviewFast = roundData_MsgNewviewFast.getJustifyView();
+	Phase phase_MsgNewviewFast = roundData_MsgNewviewFast.getPhase();
+	if (this->verifyJustification(nodes, justification_MsgNewviewFast) && this->view == proposeView_MsgNewviewFast && phase_MsgNewviewFast == PHASE_NEWVIEW_FAST && (this->lockHash == justifyHash_MsgNewviewFast || this->lockView < justifyView_MsgNewviewFast))
+	{
+		Justification justification_MsgPrepareCommon = this->updateRoundDataCommon(proposeHash, justifyHash_MsgNewviewFast, justifyView_MsgNewviewFast);
+		return justification_MsgPrepareCommon;
+	}
+	else
+	{
+		if (DEBUG_MODULES)
+		{
+			std::cout << COLOUR_CYAN << this->replicaId << " fail to respond proposal in common path" << COLOUR_NORMAL << std::endl;
+		}
+		return Justification();
+	}
+}

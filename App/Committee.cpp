@@ -108,8 +108,11 @@ std::string Committee::toPrint()
 	text += std::to_string(this->set);
 	text += "-";
 	text += std::to_string(this->size);
-	text += "-";
-	text += textCommittee;
+	if (this->size > 0)
+	{
+		text += "-";
+		text += textCommittee;
+	}
 	text += "]";
 	return text;
 }

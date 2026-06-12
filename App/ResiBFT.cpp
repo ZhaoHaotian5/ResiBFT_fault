@@ -932,24 +932,24 @@ Justification ResiBFT::saveMsgPrepareFast(Justification justification_MsgPrepare
 
 Justification ResiBFT::respondProposalFast2Common(Hash proposeHash, Justification justification_MsgNewviewFast)
 {
-	if (DEBUG_HELP)
-	{
-		std::cout << COLOUR_BLUE << this->printReplicaId() << "Fast2Common: " << COLOUR_NORMAL << std::endl;
-	}
 	Justification justification_MsgPrepareCommon = Justification();
-	Hash_t proposeHash_t;
-	setHash(proposeHash, &proposeHash_t);
-	Justification_t justification_MsgNewviewFast_t;
-	setJustification(justification_MsgNewviewFast, &justification_MsgNewviewFast_t);
-	Justification_t justification_MsgPrepareCommon_t;
-	sgx_status_t enclave_status_t;
-	sgx_status_t ecall_status_t;
-	ecall_status_t = TEE_respondProposalFast2Common(global_eid, &enclave_status_t, &proposeHash_t, &justification_MsgNewviewFast_t, &justification_MsgPrepareCommon_t);
-	justification_MsgPrepareCommon = getJustification(&justification_MsgPrepareCommon_t);
-	if (DEBUG_HELP)
+	if (this->amTrustedReplicaIds())
 	{
-		std::cout << COLOUR_BLUE << this->printReplicaId() << "Fast2Common: " << COLOUR_NORMAL << std::endl;
+		Hash_t proposeHash_t;
+		setHash(proposeHash, &proposeHash_t);
+		Justification_t justification_MsgNewviewFast_t;
+		setJustification(justification_MsgNewviewFast, &justification_MsgNewviewFast_t);
+		Justification_t justification_MsgPrepareCommon_t;
+		sgx_status_t enclave_status_t;
+		sgx_status_t ecall_status_t;
+		ecall_status_t = TEE_respondProposalFast2Common(global_eid, &enclave_status_t, &proposeHash_t, &justification_MsgNewviewFast_t, &justification_MsgPrepareCommon_t);
+		justification_MsgPrepareCommon = getJustification(&justification_MsgPrepareCommon_t);
 	}
+	else
+	{
+		justification_MsgPrepareCommon = generalRep.respondProposalFast2Common(this->nodes, proposeHash, justification_MsgNewviewFast);
+	}
+	return justification_MsgPrepareCommon;
 }
 
 Validations ResiBFT::buildValidations(std::set<MsgNewviewFast> msgNewviewFasts)
@@ -2742,7 +2742,15 @@ void ResiBFT::respondMsgLdrprepareCommon(Justification justification_MsgNewviewC
 	}
 
 	// Create own [justification_MsgPrepareCommon] for that [block]
-	Justification justification_MsgPrepareCommon = this->respondProposalCommon(block.hash(), justification_MsgNewviewCommon);
+	if (this->path == COMMON_PATH)
+	{
+		Justification justification_MsgPrepareCommon = this->respondProposalCommon(block.hash(), justification_MsgNewviewCommon);
+	}
+	else
+	{
+		Justification justification_MsgPrepareCommon = this->respondProposalFast2Common(block.hash(), justification_MsgNewviewCommon);
+	}
+
 	if (justification_MsgPrepareCommon.isSet())
 	{
 		if (DEBUG_HELP)
