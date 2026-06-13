@@ -250,7 +250,7 @@ Justification GeneralRep::initializeMsgNewviewFast()
 	return justification_MsgNewviewFast;
 }
 
-// Fast to common ResiBFT
+// Fast2common ResiBFT
 Justification GeneralRep::respondProposalFast2Common(Nodes nodes, Hash proposeHash, Justification justification_MsgNewviewFast)
 {
 	RoundData roundData_MsgNewviewFast = justification_MsgNewviewFast.getRoundData();
@@ -268,6 +268,58 @@ Justification GeneralRep::respondProposalFast2Common(Nodes nodes, Hash proposeHa
 		if (DEBUG_MODULES)
 		{
 			std::cout << COLOUR_CYAN << this->replicaId << " fail to respond proposal in common path" << COLOUR_NORMAL << std::endl;
+		}
+		return Justification();
+	}
+}
+
+Justification GeneralRep::saveMsgPrepareFast2Common(Nodes nodes, Justification justification_MsgPrepareFast2Common)
+{
+	RoundData roundData_MsgPrepareFast2Common = justification_MsgPrepareFast2Common.getRoundData();
+	Hash proposeHash_MsgPrepareFast2Common = roundData_MsgPrepareFast2Common.getProposeHash();
+	View proposeView_MsgPrepareFast2Common = roundData_MsgPrepareFast2Common.getProposeView();
+	Phase phase_MsgPrepareFast2Common = roundData_MsgPrepareFast2Common.getPhase();
+	if (this->verifyJustification(nodes, justification_MsgPrepareFast2Common) && justification_MsgPrepareFast2Common.getSigns().getSize() == this->generalQuorumSize && this->view == proposeView_MsgPrepareFast2Common && phase_MsgPrepareFast2Common == PHASE_PREPARE_COMMON)
+	{
+		this->prepareHash = proposeHash_MsgPrepareFast2Common;
+		this->prepareView = proposeView_MsgPrepareFast2Common;
+		Justification justification_MsgPrecommitFast2Common = this->updateRoundDataCommon(proposeHash_MsgPrepareFast2Common, Hash(), View());
+		return justification_MsgPrecommitFast2Common;
+	}
+	else
+	{
+		if (DEBUG_MODULES)
+		{
+			std::cout << COLOUR_CYAN << this->replicaId << " fail to save in MsgPrepare for fast path to common path" << COLOUR_NORMAL << std::endl;
+		}
+		return Justification();
+	}
+}
+
+Justification GeneralRep::lockMsgPrecommitFast2Common(Nodes nodes, Justification justification_MsgPrecommitFast2Common)
+{
+	RoundData roundData = justification_MsgPrecommitFast2Common.getRoundData();
+	Hash proposeHash_MsgPrecommitFast2Common = roundData.getProposeHash();
+	View proposeView_MsgPrecommitFast2Common = roundData.getProposeView();
+	Phase phase_MsgPrecommitFast2Common = roundData.getPhase();
+	if (this->verifyJustification(nodes, justification_MsgPrecommitFast2Common) && justification_MsgPrecommitFast2Common.getSigns().getSize() == this->generalQuorumSize && this->view == proposeView_MsgPrecommitFast2Common && phase_MsgPrecommitFast2Common == PHASE_PRECOMMIT_COMMON)
+	{
+		this->prepareHash = proposeHash_MsgPrecommitFast2Common;
+		this->prepareView = proposeView_MsgPrecommitFast2Common;
+		this->lockHash = proposeHash_MsgPrecommitFast2Common;
+		this->lockView = proposeView_MsgPrecommitFast2Common;
+		if (DEBUG_MODULES)
+		{
+			std::cout << COLOUR_CYAN << this->replicaId << " locked" << COLOUR_NORMAL << std::endl;
+		}
+		Justification justification_MsgCommitFast2Common = this->updateRoundDataCommon(proposeHash_MsgPrecommitFast2Common, Hash(), View());
+		return justification_MsgCommitFast2Common;
+	}
+	else
+	{
+		if (DEBUG_MODULES)
+		{
+			std::cout << COLOUR_CYAN << this->replicaId << " fail to lock in MsgPrecommit for fast path to common path" << COLOUR_NORMAL << std::endl;
 		}
 		return Justification();
 	}

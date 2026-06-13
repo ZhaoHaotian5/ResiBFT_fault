@@ -58,8 +58,10 @@ public:
 	// Fast ResiBFT
 	Justification initializeMsgNewviewFast();
 
-	// Fast to common ResiBFT
+	// Fast2common ResiBFT
 	Justification respondProposalFast2Common(Nodes nodes, Hash proposeHash, Justification justification_MsgNewviewFast);
+	Justification saveMsgPrepareFast2Common(Nodes nodes, Justification justification_MsgPrepareFast2Common);
+	Justification lockMsgPrecommitFast2Common(Nodes nodes, Justification justification_MsgPrecommitFast2Common);
 };
 
 #endif

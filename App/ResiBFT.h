@@ -145,18 +145,21 @@ private:
 	bool verifyProposalFast(ProposalFast proposalFast, Signs signs);
 
 	Justification initializeMsgNewviewCommon();
-	Signs initializeMsgLdrprepareCommon(ProposalCommon proposal_MsgLdrprepareCommon);
 	Justification respondProposalCommon(Hash proposeHash, Justification justification_MsgNewviewCommon);
+	Signs initializeMsgLdrprepareCommon(ProposalCommon proposal_MsgLdrprepareCommon);
 	Justification saveMsgPrepareCommon(Justification justification_MsgPrepareCommon);
 	Justification lockMsgPrecommitCommon(Justification justification_MsgPrecommitCommon);
 
 	Justification initializeMsgNewviewFast();
 	Accumulator initializeAccumulatorFast(Justification justifications_MsgNewview[NUM_ACTIVE_REPLICAS]);
-	Signs initializeMsgLdrprepareFast(ProposalFast proposal_MsgLdrprepare);
 	Justification respondProposalFast(Hash proposeHash, Accumulator accumulator_MsgLdrprepareFast);
+	Signs initializeMsgLdrprepareFast(ProposalFast proposal_MsgLdrprepare);
 	Justification saveMsgPrepareFast(Justification justification_MsgPrepareFast, bool isFail_MsgPrepareFast);
 
 	Justification respondProposalFast2Common(Hash proposeHash, Justification justification_MsgNewviewFast);
+	Signs initializeMsgLdrprepareFast2Common(ProposalCommon proposal_MsgLdrprepareFast2Common);
+	Justification saveMsgPrepareFast2Common(Justification justification_MsgPrepareFast2Common);
+	Justification lockMsgPrecommitFast2Common(Justification justification_MsgPrecommitFast2Common);
 
 	Validations buildValidations(std::set<MsgNewviewFast> msgNewviewFasts);
 	Accumulator buildAccumulator(std::set<MsgNewviewFast> msgNewviewFasts);
@@ -184,6 +187,11 @@ private:
 	void receiveMsgPrecommitFast(MsgPrecommitFast msgPrecommitFast, const PeerNet::conn_t &conn);
 	void receiveMsgValidationFast(MsgValidationFast msgValidationFast, const PeerNet::conn_t &conn);
 
+	void receiveMsgLdrprepareFast2Common(MsgLdrprepareFast2Common msgLdrprepareFast2Common, const PeerNet::conn_t &conn);
+	void receiveMsgPrepareFast2Common(MsgPrepareFast2Common msgPrepareFast2Common, const PeerNet::conn_t &conn);
+	void receiveMsgPrecommitFast2Common(MsgPrecommitFast2Common msgPrecommitFast2Common, const PeerNet::conn_t &conn);
+	void receiveMsgCommitFast2Common(MsgCommitFast2Common msgCommitFast2Common, const PeerNet::conn_t &conn);
+
 	// Send messages
 	void sendMsgNewviewCommon(MsgNewviewCommon msgNewviewCommon, Peers recipients);
 	void sendMsgLdrprepareCommon(MsgLdrprepareCommon msgLdrprepareCommon, Peers recipients);
@@ -196,6 +204,11 @@ private:
 	void sendMsgPrepareFast(MsgPrepareFast msgPrepareFast, Peers recipients);
 	void sendMsgPrecommitFast(MsgPrecommitFast msgPrecommitFast, Peers recipients);
 	void sendMsgValidationFast(MsgValidationFast msgValidationFast, Peers recipients);
+
+	void sendMsgLdrprepareFast2Common(MsgLdrprepareFast2Common msgLdrprepareFast2Common, Peers recipients);
+	void sendMsgPrepareFast2Common(MsgPrepareFast2Common msgPrepareFast2Common, Peers recipients);
+	void sendMsgPrecommitFast2Common(MsgPrecommitFast2Common msgPrecommitFast2Common, Peers recipients);
+	void sendMsgCommitFast2Common(MsgCommitFast2Common msgCommitFast2Common, Peers recipients);
 
 	// Handle messages
 	void handleMsgTransaction(MsgTransaction msgTransaction);
@@ -214,15 +227,24 @@ private:
 	void handleMsgPrecommitFast(MsgPrecommitFast msgPrecommitFast);	   // For both the leader and replicas process [msgPrecommitFast]
 	void handleMsgValidationFast(MsgValidationFast msgValidationFast); // For the non-committee replicas process [msgValidationFast]
 
+	void handleMsgLdrprepareFast2Common(MsgLdrprepareFast2Common MsgLdrprepareFast2Common); // Once the replicas have received [msgLdrprepareFast2Common], it creates [msgPrepareFast2Common] out of the proposal
+	void handleMsgPrepareFast2Common(MsgPrepareFast2Common msgPrepareFast2Common);			// For both the leader and replicas process [msgPrepareFast2Common]
+	void handleMsgPrecommitFast2Common(MsgPrecommitFast2Common msgPrecommitFast2Common);	// For both the leader and replicas process [msgPrecommitFast2Common]
+	void handleMsgCommitFast2Common(MsgCommitFast2Common msgCommitFast2Common);				// For both the leader and replicas process [msgCommitFast2Common]
+
 	// Initiate messages
-	void initiateMsgNewviewCommon();									 // Leader send [msgLdrprepareCommon] to others and hold its own [msgPrepare]
-	void initiateMsgPrepareCommon(RoundData roundData_MsgPrepareCommon); // Leader send [msgPrepareCommon] to others and hold its own [msgPrecommit]
-	void initiateMsgPrecommitCommon(RoundData roundData_MsgPrecommit);	 // Leader send [msgPrecommitCommon] to others and hold its own [msgCommit]
+	void initiateMsgNewviewCommon();									 // Leader send [msgLdrprepareCommon] to others and hold its own [msgPrepareCommon]
+	void initiateMsgPrepareCommon(RoundData roundData_MsgPrepareCommon); // Leader send [msgPrepareCommon] to others and hold its own [msgPrecommitCommon]
+	void initiateMsgPrecommitCommon(RoundData roundData_MsgPrecommit);	 // Leader send [msgPrecommitCommon] to others and hold its own [msgCommitCommon]
 	void initiateMsgCommitCommon(RoundData roundData_MsgCommit);		 // Leader send [msgCommitCommon] to others and execute the block
 
 	void initiateMsgNewviewFast();										 // Leader send [msgLdrprepareFast] to others and hold its own [msgPrepareFast]
 	void initiateMsgPrepareFast(RoundData roundData_MsgPrepareFast);	 // Leader send [msgPrepareFast] to others and hold its own [msgPrecommitFast]
 	void initiateMsgPrecommitFast(RoundData roundData_MsgPrecommitFast); // Leader send [msgPrecommitFast] to others and execute the block
+
+	void initiateMsgPrepareFast2Common(RoundData roundData_MsgPrepareFast2Common); // Leader send [msgPrepareFast2Common] to others and hold its own [msgPrecommitFast2Common]
+	void initiateMsgPrecommitFast2Common(RoundData roundData_MsgPrecommit);		   // Leader send [msgPrecommitFast2Common] to others and hold its own [msgCommitFast2Common]
+	void initiateMsgCommitFast2Common(RoundData roundData_MsgCommit);			   // Leader send [msgCommitFast2Common] to others and execute the block
 
 	// Respond messages
 	void respondMsgLdrprepareCommon(Justification justification_MsgNewviewCommon, Committee committee_MsgLdrprepareCommon, Block block); // Replicas respond to [msgLdrprepareCommon] and send [msgPrepareCommon] to the leader
@@ -231,6 +253,10 @@ private:
 
 	void respondMsgLdrprepareFast(Accumulator accumulator_MsgLdrprepareFast, Validations validations_MsgLdrprepareFast, Block block); // Replicas respond to [msgLdrprepareFast] and send [msgPrepareFast] to the leader
 	void respondMsgPrepareFast(Justification justification_MsgPrepareFast, bool isFail_MsgPrepareFast);								  // Replicas respond to [msgPrepareFast] and send [msgPrecommitFast] to the leader
+
+	void respondMsgLdrprepareFast2Common(Justification justification_MsgNewviewFast2Common, Committee committee_MsgLdrprepareFast2Common, Block block); // Replicas respond to [msgLdrprepareFast2Common] and send [msgPrepareFast2Common] to the leader
+	void respondMsgPrepareFast2Common(Justification justification_MsgPrepare);																			// Replicas respond to [msgPrepareFast2Common] and send [msgPrecommitFast2Common] to the leader
+	void respondMsgPrecommitFast2Common(Justification justification_MsgPrecommitFast2Common);															// Replicas respond to [msgPrecommitFast2Common] and send [msgCommitFast2Common] to the leader
 
 	// Main functions
 	int initializeSGX();

@@ -604,4 +604,172 @@ struct MsgValidationFast
 	}
 };
 
+// Fast2common 
+struct MsgLdrprepareFast2Common
+{
+	static const uint8_t opcode = HEADER_LDRPREPARE_RESIBFT_FAST2COMMON;
+	salticidae::DataStream serialized;
+	ProposalCommon proposalCommon;
+	Committee committee;
+	Signs signs;
+
+	MsgLdrprepareFast2Common(const ProposalCommon &proposalCommon, const Committee &committee, const Signs &signs) : proposalCommon(proposalCommon), committee(committee), signs(signs) { serialized << proposalCommon << committee << signs; }
+	MsgLdrprepareFast2Common(salticidae::DataStream &&data) { data >> proposalCommon >> committee >> signs; }
+
+	void serialize(salticidae::DataStream &data) const
+	{
+		data << proposalCommon << committee << signs;
+	}
+
+	unsigned int sizeMsg()
+	{
+		return (sizeof(ProposalCommon) + sizeof(Committee) + sizeof(Signs));
+	}
+
+	std::string toPrint()
+	{
+		std::string text = "";
+		text += "RESIBFT_FAST2COMMON_MSGLDRPREPARE[";
+		text += proposalCommon.toPrint();
+		text += ",";
+		text += committee.toPrint();
+		text += ",";
+		text += signs.toPrint();
+		text += "]";
+		return text;
+	}
+
+	bool operator<(const MsgLdrprepareFast2Common &data) const
+	{
+		if (signs < data.signs)
+		{
+			return true;
+		}
+		return false;
+	}
+};
+
+struct MsgPrepareFast2Common
+{
+	static const uint8_t opcode = HEADER_PREPARE_RESIBFT_FAST2COMMON;
+	salticidae::DataStream serialized;
+	RoundData roundData;
+	Signs signs;
+
+	MsgPrepareFast2Common(const RoundData &roundData, const Signs &signs) : roundData(roundData), signs(signs) { serialized << roundData << signs; }
+	MsgPrepareFast2Common(salticidae::DataStream &&data) { data >> roundData >> signs; }
+
+	void serialize(salticidae::DataStream &data) const
+	{
+		data << roundData << signs;
+	}
+
+	unsigned int sizeMsg()
+	{
+		return (sizeof(RoundData) + sizeof(Signs));
+	}
+
+	std::string toPrint()
+	{
+		std::string text = "";
+		text += "RESIBFT_FAST2COMMON_MSGPREPARE[";
+		text += roundData.toPrint();
+		text += ",";
+		text += signs.toPrint();
+		text += "]";
+		return text;
+	}
+
+	bool operator<(const MsgPrepareFast2Common &data) const
+	{
+		if (signs < data.signs)
+		{
+			return true;
+		}
+		return false;
+	}
+};
+
+struct MsgPrecommitFast2Common
+{
+	static const uint8_t opcode = HEADER_PRECOMMIT_RESIBFT_FAST2COMMON;
+	salticidae::DataStream serialized;
+	RoundData roundData;
+	Signs signs;
+
+	MsgPrecommitFast2Common(const RoundData &roundData, const Signs &signs) : roundData(roundData), signs(signs) { serialized << roundData << signs; }
+	MsgPrecommitFast2Common(salticidae::DataStream &&data) { data >> roundData >> signs; }
+
+	void serialize(salticidae::DataStream &data) const
+	{
+		data << roundData << signs;
+	}
+
+	unsigned int sizeMsg()
+	{
+		return (sizeof(RoundData) + sizeof(Signs));
+	}
+
+	std::string toPrint()
+	{
+		std::string text = "";
+		text += "RESIBFT_FAST2COMMON_MSGPRECOMMIT[";
+		text += roundData.toPrint();
+		text += ",";
+		text += signs.toPrint();
+		text += "]";
+		return text;
+	}
+
+	bool operator<(const MsgPrecommitFast2Common &data) const
+	{
+		if (signs < data.signs)
+		{
+			return true;
+		}
+		return false;
+	}
+};
+
+struct MsgCommitFast2Common
+{
+	static const uint8_t opcode = HEADER_COMMIT_RESIBFT_FAST2COMMON;
+	salticidae::DataStream serialized;
+	RoundData roundData;
+	Signs signs;
+
+	MsgCommitFast2Common(const RoundData &roundData, const Signs &signs) : roundData(roundData), signs(signs) { serialized << roundData << signs; }
+	MsgCommitFast2Common(salticidae::DataStream &&data) { data >> roundData >> signs; }
+
+	void serialize(salticidae::DataStream &data) const
+	{
+		data << roundData << signs;
+	}
+
+	unsigned int sizeMsg()
+	{
+		return (sizeof(RoundData) + sizeof(Signs));
+	}
+
+	std::string toPrint()
+	{
+		std::string text = "";
+		text += "RESIBFT_FAST2COMMON_MSGCOMMIT[";
+		text += roundData.toPrint();
+		text += ",";
+		text += signs.toPrint();
+		text += "]";
+		return text;
+	}
+
+	bool operator<(const MsgCommitFast2Common &data) const
+	{
+		if (signs < data.signs)
+		{
+			return true;
+		}
+		return false;
+	}
+};
+
 #endif

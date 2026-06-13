@@ -391,7 +391,7 @@ sgx_status_t TEE_saveMsgPrepareFast(Justification_t *justification_MsgPrepareFas
 	return status_t;
 }
 
-// Fast to common ResiBFT
+// Fast2common ResiBFT
 sgx_status_t TEE_respondProposalFast2Common(Hash_t *proposeHash_t, Justification_t *justification_MsgNewviewFast_t, Justification_t *justification_MsgPrepareCommon_t)
 {
 	sgx_status_t status_t = SGX_SUCCESS;
@@ -411,6 +411,69 @@ sgx_status_t TEE_respondProposalFast2Common(Hash_t *proposeHash_t, Justification
 		if (DEBUG_TEE)
 		{
 			TEE_Print((printReplicaId_t() + " fail to respond proposal in common path").c_str());
+		}
+	}
+
+	return status_t;
+}
+
+sgx_status_t TEE_initializeMsgLdrprepareFast2Common(ProposalCommon_t *proposalCommon_MsgLdrprepareFast2Common_t, Signs_t *signs_MsgLdrprepareFast2Common_t)
+{
+	sgx_status_t status_t = SGX_SUCCESS;
+
+	Sign_t sign_MsgLdrprepareFast_t = signData_t(proposalCommon2string_t(*proposalCommon_MsgLdrprepareFast2Common_t));
+	signs_MsgLdrprepareFast2Common_t->size = 1;
+	signs_MsgLdrprepareFast2Common_t->signs[0] = sign_MsgLdrprepareFast_t;
+
+	return status_t;
+}
+
+sgx_status_t TEE_saveMsgPrepareFast2Common(Justification_t *justification_MsgPrepareFast2Common_t, Justification_t *justification_MsgPrecommitFast2Common_t)
+{
+	sgx_status_t status_t = SGX_SUCCESS;
+
+	RoundData_t roundData_MsgPrepareFast2Common_t = justification_MsgPrepareFast2Common_t->roundData;
+	Hash_t proposeHash_MsgPrepareFast2Common_t = roundData_MsgPrepareFast2Common_t.proposeHash;
+	View proposeView_MsgPrepareFast2Common_t = roundData_MsgPrepareFast2Common_t.proposeView;
+	Phase phase_MsgPrepareFast2Common_t = roundData_MsgPrepareFast2Common_t.phase;
+	if (verifyJustification_t(justification_MsgPrepareFast2Common_t) && justification_MsgPrepareFast2Common_t->signs.size == getGeneralQuorumSize_t() && view_t == proposeView_MsgPrepareFast2Common_t && phase_MsgPrepareFast2Common_t == PHASE_PREPARE_COMMON)
+	{
+		prepareHash_t = proposeHash_MsgPrepareFast2Common_t;
+		prepareView_t = proposeView_MsgPrepareFast2Common_t;
+		*justification_MsgPrecommitFast2Common_t = updateRoundDataCommon_t(proposeHash_MsgPrepareFast2Common_t, initiateHash_t(), 0);
+	}
+	else
+	{
+		justification_MsgPrecommitFast2Common_t->set = false;
+		if (DEBUG_TEE)
+		{
+			TEE_Print((printReplicaId_t() + " fail to save in MsgPrepare for fast path to common path").c_str());
+		}
+	}
+
+	return status_t;
+}
+
+sgx_status_t TEE_lockMsgPrecommitFast2Common(Justification_t *justification_MsgPrecommitFast2Common_t, Justification_t *justification_MsgCommitFast2Common_t)
+{
+	sgx_status_t status_t = SGX_SUCCESS;
+
+	RoundData_t roundData_MsgPrecommitFast2Common_t = justification_MsgPrecommitFast2Common_t->roundData;
+	Hash_t proposeHash_MsgPrecommitFast2Common_t = roundData_MsgPrecommitFast2Common_t.proposeHash;
+	View proposeView_MsgPrecommitFast2Common_t = roundData_MsgPrecommitFast2Common_t.proposeView;
+	Phase phase_MsgPrecommitFast2Common_t = roundData_MsgPrecommitFast2Common_t.phase;
+	if (verifyJustification_t(justification_MsgPrecommitFast2Common_t) && justification_MsgPrecommitFast2Common_t->signs.size == getGeneralQuorumSize_t() && view_t == proposeView_MsgPrecommitFast2Common_t && phase_MsgPrecommitFast2Common_t == PHASE_PRECOMMIT_COMMON)
+	{
+		prepareHash_t = proposeHash_MsgPrecommitFast2Common_t;
+		prepareView_t = proposeView_MsgPrecommitFast2Common_t;
+		*justification_MsgCommitFast2Common_t = updateRoundDataCommon_t(proposeHash_MsgPrecommitFast2Common_t, initiateHash_t(), 0);
+	}
+	else
+	{
+		justification_MsgCommitFast2Common_t->set = false;
+		if (DEBUG_TEE)
+		{
+			TEE_Print((printReplicaId_t() + " fail to lock in MsgPrecommit for fast path to common path").c_str());
 		}
 	}
 

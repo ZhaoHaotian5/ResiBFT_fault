@@ -953,6 +953,375 @@ MsgPrecommitFast Log::firstMsgPrecommitFast(View view)
 	return msgPrecommit;
 }
 
+// Fast2common ResiBFT
+bool MsgLdrprepareFast2CommonFrom(std::set<MsgLdrprepareFast2Common> msgLdrprepares, std::set<ReplicaID> signers)
+{
+	for (std::set<MsgLdrprepareFast2Common>::iterator itMsg = msgLdrprepares.begin(); itMsg != msgLdrprepares.end(); itMsg++)
+	{
+		MsgLdrprepareFast2Common msgLdrprepare = *itMsg;
+		std::set<ReplicaID> allSigners = msgLdrprepare.signs.getSigners();
+		for (std::set<ReplicaID>::iterator itSigner = allSigners.begin(); itSigner != allSigners.end(); itSigner++)
+		{
+			signers.erase(*itSigner);
+			if (signers.empty())
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+unsigned int Log::storeMsgLdrprepareFast2Common(MsgLdrprepareFast2Common msgLdrprepare)
+{
+	ProposalCommon proposal_MsgLdrprepare = msgLdrprepare.proposalCommon;
+	View proposeView_MsgLdrprepare = proposal_MsgLdrprepare.getJustification().getRoundData().getProposeView();
+	std::set<ReplicaID> signers = msgLdrprepare.signs.getSigners();
+	std::map<View, std::set<MsgLdrprepareFast2Common>>::iterator itView = this->ldrpreparesFast2Common.find(proposeView_MsgLdrprepare);
+	if (itView != this->ldrpreparesFast2Common.end())
+	{
+		std::set<MsgLdrprepareFast2Common> msgLdrprepares = itView->second;
+		if (!MsgLdrprepareFast2CommonFrom(msgLdrprepares, signers))
+		{
+			msgLdrprepares.insert(msgLdrprepare);
+			this->ldrpreparesFast2Common[proposeView_MsgLdrprepare] = msgLdrprepares;
+			if (DEBUG_LOG)
+			{
+				std::cout << COLOUR_GREEN << "Updated entry for msgLdrprepare for fast path to common path in view " << proposeView_MsgLdrprepare << " and the number of msgLdrprepare is: " << msgLdrprepares.size() << COLOUR_NORMAL << std::endl;
+			}
+			return msgLdrprepares.size();
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	else
+	{
+		std::set<MsgLdrprepareFast2Common> msgLdrprepares = {msgLdrprepare};
+		this->ldrpreparesFast2Common[proposeView_MsgLdrprepare] = msgLdrprepares;
+		if (DEBUG_LOG)
+		{
+			std::cout << COLOUR_GREEN << "No entry for msgLdrprepare for fast path to common path in view " << proposeView_MsgLdrprepare << " and the number of msgLdrprepare is: 1" << COLOUR_NORMAL << std::endl;
+		}
+		return 1;
+	}
+}
+
+bool MsgPrepareFast2CommonFrom(std::set<MsgPrepareFast2Common> msgPrepares, std::set<ReplicaID> signers)
+{
+	for (std::set<MsgPrepareFast2Common>::iterator itMsg = msgPrepares.begin(); itMsg != msgPrepares.end(); itMsg++)
+	{
+		MsgPrepareFast2Common msgPrepare = *itMsg;
+		std::set<ReplicaID> allSigners = msgPrepare.signs.getSigners();
+		for (std::set<ReplicaID>::iterator itSigner = allSigners.begin(); itSigner != allSigners.end(); itSigner++)
+		{
+			signers.erase(*itSigner);
+			if (signers.empty())
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+unsigned int Log::storeMsgPrepareFast2Common(MsgPrepareFast2Common msgPrepare)
+{
+	RoundData roundData_MsgPrepare = msgPrepare.roundData;
+	View proposeView_MsgPrepare = roundData_MsgPrepare.getProposeView();
+	std::set<ReplicaID> signers = msgPrepare.signs.getSigners();
+	std::map<View, std::set<MsgPrepareFast2Common>>::iterator itView = this->preparesFast2Common.find(proposeView_MsgPrepare);
+	if (itView != this->preparesFast2Common.end())
+	{
+		std::set<MsgPrepareFast2Common> msgPrepares = itView->second;
+		if (!MsgPrepareFast2CommonFrom(msgPrepares, signers))
+		{
+			msgPrepares.insert(msgPrepare);
+			this->preparesFast2Common[proposeView_MsgPrepare] = msgPrepares;
+			if (DEBUG_LOG)
+			{
+				std::cout << COLOUR_GREEN << "Updated entry for msgPrepare for fast path to common path in view " << proposeView_MsgPrepare << " and the number of msgPrepare is: " << msgPrepares.size() << COLOUR_NORMAL << std::endl;
+			}
+			return msgPrepares.size();
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	else
+	{
+		std::set<MsgPrepareFast2Common> msgPrepares = {msgPrepare};
+		this->preparesFast2Common[proposeView_MsgPrepare] = msgPrepares;
+		if (DEBUG_LOG)
+		{
+			std::cout << COLOUR_GREEN << "No entry for msgPrepare for fast path to common path in view " << proposeView_MsgPrepare << " and the number of msgPrepare is: 1" << COLOUR_NORMAL << std::endl;
+		}
+		return 1;
+	}
+}
+
+bool MsgPrecommitFast2CommonFrom(std::set<MsgPrecommitFast2Common> msgPrecommits, std::set<ReplicaID> signers)
+{
+	for (std::set<MsgPrecommitFast2Common>::iterator itMsg = msgPrecommits.begin(); itMsg != msgPrecommits.end(); itMsg++)
+	{
+		MsgPrecommitFast2Common msgPrecommit = *itMsg;
+		std::set<ReplicaID> allSigners = msgPrecommit.signs.getSigners();
+		for (std::set<ReplicaID>::iterator itSigner = allSigners.begin(); itSigner != allSigners.end(); itSigner++)
+		{
+			signers.erase(*itSigner);
+			if (signers.empty())
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+unsigned int Log::storeMsgPrecommitFast2Common(MsgPrecommitFast2Common msgPrecommit)
+{
+	RoundData roundData_MsgPrecommit = msgPrecommit.roundData;
+	View proposeView_MsgPrecommit = roundData_MsgPrecommit.getProposeView();
+	std::set<ReplicaID> signers = msgPrecommit.signs.getSigners();
+	std::map<View, std::set<MsgPrecommitFast2Common>>::iterator itView = this->precommitsFast2Common.find(proposeView_MsgPrecommit);
+	if (itView != this->precommitsFast2Common.end())
+	{
+		std::set<MsgPrecommitFast2Common> msgPrecommits = itView->second;
+		if (!MsgPrecommitFast2CommonFrom(msgPrecommits, signers))
+		{
+			msgPrecommits.insert(msgPrecommit);
+			this->precommitsFast2Common[proposeView_MsgPrecommit] = msgPrecommits;
+			if (DEBUG_LOG)
+			{
+				std::cout << COLOUR_GREEN << "Updated entry for msgPrecommit for fast path to common path in view " << proposeView_MsgPrecommit << " and the number of msgPrecommit is: " << msgPrecommits.size() << COLOUR_NORMAL << std::endl;
+			}
+			return msgPrecommits.size();
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	else
+	{
+		std::set<MsgPrecommitFast2Common> msgPrecommits = {msgPrecommit};
+		this->precommitsFast2Common[proposeView_MsgPrecommit] = msgPrecommits;
+		if (DEBUG_LOG)
+		{
+			std::cout << COLOUR_GREEN << "No entry for msgPrecommit for fast path to common path in view " << proposeView_MsgPrecommit << " and the number of msgPrecommit is: 1" << COLOUR_NORMAL << std::endl;
+		}
+		return 1;
+	}
+}
+
+bool MsgCommitFast2CommonFrom(std::set<MsgCommitFast2Common> msgCommits, std::set<ReplicaID> signers)
+{
+	for (std::set<MsgCommitFast2Common>::iterator itMsg = msgCommits.begin(); itMsg != msgCommits.end(); itMsg++)
+	{
+		MsgCommitFast2Common msgCommit = *itMsg;
+		std::set<ReplicaID> allSigners = msgCommit.signs.getSigners();
+		for (std::set<ReplicaID>::iterator itSigner = allSigners.begin(); itSigner != allSigners.end(); itSigner++)
+		{
+			signers.erase(*itSigner);
+			if (signers.empty())
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+unsigned int Log::storeMsgCommitFast2Common(MsgCommitFast2Common msgCommit)
+{
+	RoundData roundData_MsgCommit = msgCommit.roundData;
+	View proposeView_MsgCommit = roundData_MsgCommit.getProposeView();
+	std::set<ReplicaID> signers = msgCommit.signs.getSigners();
+	std::map<View, std::set<MsgCommitFast2Common>>::iterator itView = this->commitsFast2Common.find(proposeView_MsgCommit);
+	if (itView != this->commitsFast2Common.end())
+	{
+		std::set<MsgCommitFast2Common> msgCommits = itView->second;
+		if (!MsgCommitFast2CommonFrom(msgCommits, signers))
+		{
+			msgCommits.insert(msgCommit);
+			this->commitsFast2Common[proposeView_MsgCommit] = msgCommits;
+			if (DEBUG_LOG)
+			{
+				std::cout << COLOUR_GREEN << "Updated entry for msgCommit for fast path to common path in view " << proposeView_MsgCommit << " and the number of msgCommit is: " << msgCommits.size() << COLOUR_NORMAL << std::endl;
+			}
+			return msgCommits.size();
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	else
+	{
+		std::set<MsgCommitFast2Common> msgCommits = {msgCommit};
+		this->commitsFast2Common[proposeView_MsgCommit] = msgCommits;
+		if (DEBUG_LOG)
+		{
+			std::cout << COLOUR_GREEN << "No entry for msgCommit for fast path to common path in view " << proposeView_MsgCommit << " and the number of msgCommit is: 1" << COLOUR_NORMAL << std::endl;
+		}
+		return 1;
+	}
+}
+
+Signs Log::getMsgPrepareFast2Common(View view, unsigned int n)
+{
+	Signs signs;
+	std::map<View, std::set<MsgPrepareFast2Common>>::iterator itView = this->preparesFast2Common.find(view);
+	if (itView != this->preparesFast2Common.end())
+	{
+		std::set<MsgPrepareFast2Common> msgPrepares = itView->second;
+		for (std::set<MsgPrepareFast2Common>::iterator itMsg = msgPrepares.begin(); signs.getSize() < n && itMsg != msgPrepares.end(); itMsg++)
+		{
+			MsgPrepareFast2Common msgPrepare = *itMsg;
+			Signs signs_MsgPrepare = msgPrepare.signs;
+			if (DEBUG_LOG)
+			{
+				std::cout << COLOUR_GREEN << "Adding signatures: " << signs_MsgPrepare.toPrint() << COLOUR_NORMAL << std::endl;
+			}
+			signs.addUpto(signs_MsgPrepare, n);
+		}
+	}
+	if (DEBUG_LOG)
+	{
+		std::cout << COLOUR_GREEN << "Log signatures: " << signs.toPrint() << COLOUR_NORMAL << std::endl;
+	}
+	return signs;
+}
+
+Signs Log::getMsgPrecommitFast2Common(View view, unsigned int n)
+{
+	Signs signs;
+	std::map<View, std::set<MsgPrecommitFast2Common>>::iterator itView = this->precommitsFast2Common.find(view);
+	if (itView != this->precommitsFast2Common.end())
+	{
+		std::set<MsgPrecommitFast2Common> msgPrecommits = itView->second;
+		for (std::set<MsgPrecommitFast2Common>::iterator itMsg = msgPrecommits.begin(); signs.getSize() < n && itMsg != msgPrecommits.end(); itMsg++)
+		{
+			MsgPrecommitFast2Common msgPrecommit = *itMsg;
+			Signs signs_MsgPrecommit = msgPrecommit.signs;
+			if (DEBUG_LOG)
+			{
+				std::cout << COLOUR_GREEN << "Adding signatures: " << signs_MsgPrecommit.toPrint() << COLOUR_NORMAL << std::endl;
+			}
+			signs.addUpto(signs_MsgPrecommit, n);
+		}
+	}
+	if (DEBUG_LOG)
+	{
+		std::cout << COLOUR_GREEN << "Log signatures: " << signs.toPrint() << COLOUR_NORMAL << std::endl;
+	}
+	return signs;
+}
+
+Signs Log::getMsgCommitFast2Common(View view, unsigned int n)
+{
+	Signs signs;
+	std::map<View, std::set<MsgCommitFast2Common>>::iterator itView = this->commitsFast2Common.find(view);
+	if (itView != this->commitsFast2Common.end())
+	{
+		std::set<MsgCommitFast2Common> msgCommits = itView->second;
+		for (std::set<MsgCommitFast2Common>::iterator itMsg = msgCommits.begin(); signs.getSize() < n && itMsg != msgCommits.end(); itMsg++)
+		{
+			MsgCommitFast2Common msgCommit = *itMsg;
+			Signs signs_MsgCommit = msgCommit.signs;
+			if (DEBUG_LOG)
+			{
+				std::cout << COLOUR_GREEN << "Adding signatures: " << signs_MsgCommit.toPrint() << COLOUR_NORMAL << std::endl;
+			}
+			signs.addUpto(signs_MsgCommit, n);
+		}
+	}
+	if (DEBUG_LOG)
+	{
+		std::cout << COLOUR_GREEN << "Log signatures: " << signs.toPrint() << COLOUR_NORMAL << std::endl;
+	}
+	return signs;
+}
+
+MsgLdrprepareFast2Common Log::firstMsgLdrprepareFast2Common(View view)
+{
+	std::map<View, std::set<MsgLdrprepareFast2Common>>::iterator itView = this->ldrpreparesFast2Common.find(view);
+	if (itView != this->ldrpreparesFast2Common.end())
+	{
+		std::set<MsgLdrprepareFast2Common> msgLdrprepares = itView->second;
+		if (msgLdrprepares.size() > 0)
+		{
+			std::set<MsgLdrprepareFast2Common>::iterator itMsg = msgLdrprepares.begin();
+			MsgLdrprepareFast2Common msgLdrprepare = *itMsg;
+			return msgLdrprepare;
+		}
+	}
+	ProposalCommon proposal;
+	Committee committee;
+	Signs signs;
+	MsgLdrprepareFast2Common msgLdrprepare = MsgLdrprepareFast2Common(proposal, committee, signs);
+	return msgLdrprepare;
+}
+
+MsgPrepareFast2Common Log::firstMsgPrepareFast2Common(View view)
+{
+	std::map<View, std::set<MsgPrepareFast2Common>>::iterator itView = this->preparesFast2Common.find(view);
+	if (itView != this->preparesFast2Common.end())
+	{
+		std::set<MsgPrepareFast2Common> msgPrepares = itView->second;
+		if (msgPrepares.size() > 0)
+		{
+			std::set<MsgPrepareFast2Common>::iterator itMsg = msgPrepares.begin();
+			MsgPrepareFast2Common msgPrepare = *itMsg;
+			return msgPrepare;
+		}
+	}
+	RoundData roundData;
+	Signs signs;
+	MsgPrepareFast2Common msgPrepare = MsgPrepareFast2Common(roundData, signs);
+	return msgPrepare;
+}
+
+MsgPrecommitFast2Common Log::firstMsgPrecommitFast2Common(View view)
+{
+	std::map<View, std::set<MsgPrecommitFast2Common>>::iterator itView = this->precommitsFast2Common.find(view);
+	if (itView != this->precommitsFast2Common.end())
+	{
+		std::set<MsgPrecommitFast2Common> msgPrecommits = itView->second;
+		if (msgPrecommits.size() > 0)
+		{
+			std::set<MsgPrecommitFast2Common>::iterator itMsg = msgPrecommits.begin();
+			MsgPrecommitFast2Common msgPrecommit = *itMsg;
+			return msgPrecommit;
+		}
+	}
+	RoundData roundData;
+	Signs signs;
+	MsgPrecommitFast2Common msgPrecommit = MsgPrecommitFast2Common(roundData, signs);
+	return msgPrecommit;
+}
+
+MsgCommitFast2Common Log::firstMsgCommitFast2Common(View view)
+{
+	std::map<View, std::set<MsgCommitFast2Common>>::iterator itView = this->commitsFast2Common.find(view);
+	if (itView != this->commitsFast2Common.end())
+	{
+		std::set<MsgCommitFast2Common> msgCommits = itView->second;
+		if (msgCommits.size() > 0)
+		{
+			std::set<MsgCommitFast2Common>::iterator itMsg = msgCommits.begin();
+			MsgCommitFast2Common msgCommit = *itMsg;
+			return msgCommit;
+		}
+	}
+	RoundData roundData;
+	Signs signs;
+	MsgCommitFast2Common msgCommit = MsgCommitFast2Common(roundData, signs);
+	return msgCommit;
+}
+
 std::string Log::toPrint()
 {
 	std::string text = "";
@@ -1019,6 +1388,34 @@ std::string Log::toPrint()
 		View view = itView->first;
 		std::set<MsgPrecommitFast> msgs = itView->second;
 		text += "MsgPrecommitFast: View = " + std::to_string(view) + "; The number of MsgPrecommitFast in fast path is: " + std::to_string(msgs.size()) + "\n";
+	}
+	// MsgLdrprepareFast2Common
+	for (std::map<View, std::set<MsgLdrprepareFast2Common>>::iterator itView = this->ldrpreparesFast2Common.begin(); itView != this->ldrpreparesFast2Common.end(); itView++)
+	{
+		View view = itView->first;
+		std::set<MsgLdrprepareFast2Common> msgs = itView->second;
+		text += "MsgLdrprepareFast2Common: View = " + std::to_string(view) + "; The number of MsgLdrprepare for fast path to common path is: " + std::to_string(msgs.size()) + "\n";
+	}
+	// MsgPrepareFast2Common
+	for (std::map<View, std::set<MsgPrepareFast2Common>>::iterator itView = this->preparesFast2Common.begin(); itView != this->preparesFast2Common.end(); itView++)
+	{
+		View view = itView->first;
+		std::set<MsgPrepareFast2Common> msgs = itView->second;
+		text += "MsgPrepareFast2Common: View = " + std::to_string(view) + "; The number of MsgPrepare for fast path to common path is: " + std::to_string(msgs.size()) + "\n";
+	}
+	// MsgPrecommitFast2Common
+	for (std::map<View, std::set<MsgPrecommitFast2Common>>::iterator itView = this->precommitsFast2Common.begin(); itView != this->precommitsFast2Common.end(); itView++)
+	{
+		View view = itView->first;
+		std::set<MsgPrecommitFast2Common> msgs = itView->second;
+		text += "MsgPrecommitFast2Common: View = " + std::to_string(view) + "; The number of MsgPrecommit for fast path to common path is: " + std::to_string(msgs.size()) + "\n";
+	}
+	// MsgCommitFast2Common
+	for (std::map<View, std::set<MsgCommitFast2Common>>::iterator itView = this->commitsFast2Common.begin(); itView != this->commitsFast2Common.end(); itView++)
+	{
+		View view = itView->first;
+		std::set<MsgCommitFast2Common> msgs = itView->second;
+		text += "MsgCommitFast2Common: View = " + std::to_string(view) + "; The number of MsgCommit for fast path to common path is: " + std::to_string(msgs.size()) + "\n";
 	}
 
 	return text;

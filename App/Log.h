@@ -29,6 +29,12 @@ private:
 	std::map<View, std::set<MsgPrecommitFast>> precommitsFast;
 	std::map<View, std::set<MsgValidationFast>> validationsFast;
 
+	// Fast2common ResiBFT
+	std::map<View, std::set<MsgLdrprepareFast2Common>> ldrpreparesFast2Common;
+	std::map<View, std::set<MsgPrepareFast2Common>> preparesFast2Common;
+	std::map<View, std::set<MsgPrecommitFast2Common>> precommitsFast2Common;
+	std::map<View, std::set<MsgCommitFast2Common>> validationsFast2Common;
+
 public:
 	Log();
 
@@ -78,6 +84,24 @@ public:
 	MsgLdrprepareFast firstMsgLdrprepareFast(View view);
 	MsgPrepareFast firstMsgPrepareFast(View view);
 	MsgPrecommitFast firstMsgPrecommitFast(View view);
+
+	// Fast2common ResiBFT
+	// Return the number of signatures
+	unsigned int storeMsgLdrprepareFast2Common(MsgLdrprepareFast2Common msgLdrprepare);
+	unsigned int storeMsgPrepareFast2Common(MsgPrepareFast2Common msgPrepare);
+	unsigned int storeMsgPrecommitFast2Common(MsgPrecommitFast2Common msgPrecommit);
+	unsigned int storeMsgCommitFast2Common(MsgCommitFast2Common msgCommit);
+
+	// Collect [n] signatures of the messages
+	Signs getMsgPrepareFast2Common(View view, unsigned int n);
+	Signs getMsgPrecommitFast2Common(View view, unsigned int n);
+	Signs getMsgCommitFast2Common(View view, unsigned int n);
+
+	// Find the first message
+	MsgLdrprepareFast2Common firstMsgLdrprepareFast2Common(View view);
+	MsgPrepareFast2Common firstMsgPrepareFast2Common(View view);
+	MsgPrecommitFast2Common firstMsgPrecommitFast2Common(View view);
+	MsgCommitFast2Common firstMsgCommitFast2Common(View view);
 
 	// Print
 	std::string toPrint();
