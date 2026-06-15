@@ -33,7 +33,7 @@ private:
 	std::map<View, std::set<MsgLdrprepareFast2Common>> ldrpreparesFast2Common;
 	std::map<View, std::set<MsgPrepareFast2Common>> preparesFast2Common;
 	std::map<View, std::set<MsgPrecommitFast2Common>> precommitsFast2Common;
-	std::map<View, std::set<MsgCommitFast2Common>> validationsFast2Common;
+	std::map<View, std::set<MsgCommitFast2Common>> commitsFast2Common;
 
 public:
 	Log();

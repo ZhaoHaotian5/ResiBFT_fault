@@ -1610,7 +1610,7 @@ void ResiBFT::handleEarlierMessagesCommon()
 					ProposalCommon proposalCommon_MsgLdrprepareCommon = msgLdrprepareCommon.proposalCommon;
 					Committee committee_MsgLdrprepareCommon = msgLdrprepareCommon.committee;
 					Block block = proposalCommon_MsgLdrprepareCommon.getBlock();
-					Justification justification_MsgLdrprepareCommon = proposalCommon.getJustification();
+					Justification justification_MsgLdrprepareCommon = proposalCommon_MsgLdrprepareCommon.getJustification();
 					if (committee_MsgLdrprepareCommon.isSet())
 					{
 						this->committee = committee_MsgLdrprepareCommon;
@@ -1649,7 +1649,8 @@ void ResiBFT::handleEarlierMessagesFast()
 	{
 		MsgLdrprepareFast msgLdrprepareFast = this->log.firstMsgLdrprepareFast(this->view);
 		ProposalFast proposalFast_MsgLdrprepareFast = msgLdrprepareFast.proposalFast;
-		View proposeView_MsgLdrprepareFast = proposalFast_MsgLdrprepareFast.getProposeView();
+		Accumulator accumulator_MsgLdrprepareFast = proposalFast_MsgLdrprepareFast.getAccumulator();
+		View proposeView_MsgLdrprepareFast = accumulator_MsgLdrprepareFast.getProposeView();
 		if (proposeView_MsgLdrprepareFast == this->view)
 		{
 			if (this->amCommitteeReplicaIds())
@@ -1765,7 +1766,7 @@ void ResiBFT::handleEarlierMessagesFast()
 							ProposalFast proposalFast_MsgLdrprepareFast = msgLdrprepareFast.proposalFast;
 							Validations validations_MsgLdrprepareFast = msgLdrprepareFast.validations;
 							Accumulator accumulator_MsgLdrprepareFast = proposalFast_MsgLdrprepareFast.getAccumulator();
-							Block block = proposalFast.getBlock();
+							Block block = proposalFast_MsgLdrprepareFast.getBlock();
 							this->respondMsgLdrprepareFast(accumulator_MsgLdrprepareFast, validations_MsgLdrprepareFast, block);
 						}
 					}
@@ -1786,7 +1787,8 @@ void ResiBFT::handleEarlierMessagesFast()
 
 			MsgLdrprepareFast2Common msgLdrprepareFast2Common = this->log.firstMsgLdrprepareFast2Common(this->view);
 			ProposalCommon proposalCommon_MsgLdrprepareFast2Common = msgLdrprepareFast2Common.proposalCommon;
-			View proposeView_MsgLdrprepareFast2Common = proposalCommon_MsgLdrprepareFast2Common.getProposeView();
+			Justification justification_MsgLdrprepareFast2Common = proposalCommon_MsgLdrprepareFast2Common.getJustification();
+			View proposeView_MsgLdrprepareFast2Common = justification_MsgLdrprepareFast2Common.getRoundData().getProposeView();
 			if (proposeView_MsgLdrprepareFast2Common == this->view)
 			{
 				// Check if the view has already been locked
@@ -1849,7 +1851,7 @@ void ResiBFT::handleEarlierMessagesFast()
 						}
 
 						// Skip the prepare phase
-						this->initializeMsgNewviewFast2Common();
+						this->initializeMsgNewviewCommon();
 
 						// Store [justification_MsgPrepareFast2Common]
 						this->respondMsgPrepareFast2Common(justification_MsgPrepareFast2Common);
@@ -1877,7 +1879,7 @@ void ResiBFT::handleEarlierMessagesFast()
 						Signs signs_MsgLdrprepareFast2Common = msgLdrprepareFast2Common.signs;
 
 						// Check if the proposal has been stored
-						if (signs_MsgLdrprepareCommon.getSize() == 1)
+						if (signs_MsgLdrprepareFast2Common.getSize() == 1)
 						{
 							if (DEBUG_HELP)
 							{
@@ -3505,7 +3507,7 @@ void ResiBFT::respondMsgPrepareFast(Justification justification_MsgPrepareFast, 
 }
 
 // Respond messages
-void ResiBFT::respondMsgLdrprepareFast2Common(Justification justification_MsgNewviewFast, Committee committee_MsgLdrprepareCommon, Block block)
+void ResiBFT::respondMsgLdrprepareFast2Common(Justification justification_MsgNewviewFast, Committee committee_MsgLdrprepareFast2Common, Block block)
 {
 	// Update own [committee_MsgLdrprepareFast2Common]
 	if (committee_MsgLdrprepareFast2Common.isSet())
