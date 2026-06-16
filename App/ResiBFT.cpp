@@ -2284,13 +2284,17 @@ void ResiBFT::handleMsgPrepareFast(MsgPrepareFast msgPrepareFast)
 			{
 				if (this->amCurrentLeader())
 				{
-					if (this->log.storeMsgPrepareFast(msgPrepareFast) >= this->trustedQuorumSize)
+					if (!this->amTrustfailReplicaIds())
 					{
-						if (!this->amTrustfailReplicaIds() && this->log.checkMsgPrepareFast(this->view, this->trustedQuorumSize))
+						if (this->log.storeMsgPrepareFast(msgPrepareFast) >= this->trustedQuorumSize && this->log.checkMsgPrepareFast(this->view, this->trustedQuorumSize) && !this->isHandleMsgPrepareFast)
 						{
 							this->initiateMsgPrepareFast(roundData_MsgPrepareFast);
+							this->isHandleMsgPrepareFast = true;
 						}
-						else
+					}
+					else
+					{
+						if (this->log.storeMsgPrepareFast(msgPrepareFast) == this->trustedQuorumSize)
 						{
 							this->initiateMsgPrepareFast(roundData_MsgPrepareFast);
 						}
@@ -2349,13 +2353,20 @@ void ResiBFT::handleMsgPrecommitFast(MsgPrecommitFast msgPrecommitFast)
 			{
 				if (this->amCurrentLeader())
 				{
-					if (!this->amTrustfailReplicaIds() && this->log.checkMsgPrecommitFast(this->view, this->trustedQuorumSize))
+					if (!this->amTrustfailReplicaIds())
 					{
-						this->initiateMsgPrecommitFast(roundData_MsgPrecommitFast);
+						if (this->log.storeMsgPrecommitFast(msgPrecommitFast) >= this->trustedQuorumSize && this->log.checkMsgPrecommitFast(this->view, this->trustedQuorumSize) && !this->isHandleMsgPrecommitFast)
+						{
+							this->initiateMsgPrecommitFast(roundData_MsgPrecommitFast);
+							this->isHandleMsgPrecommitFast = true;
+						}
 					}
 					else
 					{
-						this->initiateMsgPrecommitFast(roundData_MsgPrecommitFast);
+						if (this->log.storeMsgPrecommitFast(msgPrecommitFast) == this->trustedQuorumSize)
+						{
+							this->initiateMsgPrecommitFast(roundData_MsgPrecommitFast);
+						}
 					}
 				}
 				else
@@ -3747,6 +3758,9 @@ void ResiBFT::startNewViewFast(Validation validation)
 	{
 		validation_MsgNewviewFast = validation;
 	}
+
+	this->isHandleMsgPrepareFast = false;
+	this->isHandleMsgPrecommitFast = false;
 
 	// Increase the view
 	this->view++;

@@ -101,6 +101,8 @@ private:
 	bool started = false;
 	bool stopped = false;
 	bool firstFast = false;
+	bool isHandleMsgPrepareFast = false;
+	bool isHandleMsgPrecommitFast = false;
 	View timerView; // View at which the timer was started
 	Log log;
 
