@@ -765,6 +765,68 @@ std::set<MsgNewviewFast> Log::getMsgNewviewFast(View view, unsigned int n)
 	return msgNewview;
 }
 
+bool Log::checkMsgPrepareFast(View view, unsigned int n)
+{
+	unsigned int success = 0;
+	std::map<View, std::set<MsgPrepareFast>>::iterator itView = this->preparesFast.find(view);
+	if (itView != this->preparesFast.end())
+	{
+		std::set<MsgPrepareFast> msgPrepares = itView->second;
+		for (std::set<MsgPrepareFast>::iterator itMsg = msgPrepares.begin(); itMsg != msgPrepares.end(); itMsg++)
+		{
+			MsgPrepareFast msgPrepare = *itMsg;
+			if (!msgPrepare.isFail)
+			{
+				success++;
+			}
+		}
+	}
+	if (DEBUG_LOG)
+	{
+		std::cout << COLOUR_GREEN << "Checking success MsgPrepare signatures: " << success << COLOUR_NORMAL << std::endl;
+	}
+
+	if (success >= n)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool Log::checkMsgPrecommitFast(View view, unsigned int n)
+{
+	unsigned int success = 0;
+	std::map<View, std::set<MsgPrecommitFast>>::iterator itView = this->precommitsFast.find(view);
+	if (itView != this->precommitsFast.end())
+	{
+		std::set<MsgPrecommitFast> msgPrecommits = itView->second;
+		for (std::set<MsgPrecommitFast>::iterator itMsg = msgPrecommits.begin(); itMsg != msgPrecommits.end(); itMsg++)
+		{
+			MsgPrecommitFast msgPrecommit = *itMsg;
+			if (!msgPrecommit.isFail)
+			{
+				success++;
+			}
+		}
+	}
+	if (DEBUG_LOG)
+	{
+		std::cout << COLOUR_GREEN << "Checking success MsgPrecommit signatures: " << success << COLOUR_NORMAL << std::endl;
+	}
+
+	if (success >= n)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 Signs Log::getMsgPrepareFast(View view, unsigned int n)
 {
 	Signs signs;

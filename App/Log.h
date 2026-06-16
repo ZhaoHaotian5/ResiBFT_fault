@@ -70,6 +70,9 @@ public:
 	unsigned int storeMsgValidationFast(MsgValidationFast msgValidation);
 
 	// Collect [n] signatures of the messages
+	bool checkMsgPrepareFast(View view, unsigned int n);
+	bool checkMsgPrecommitFast(View view, unsigned int n);
+
 	std::set<MsgNewviewFast> getMsgNewviewFast(View view, unsigned int n);
 	Signs getMsgPrepareFast(View view, unsigned int n);
 	Signs getMsgPrecommitFast(View view, unsigned int n);

@@ -2284,9 +2284,16 @@ void ResiBFT::handleMsgPrepareFast(MsgPrepareFast msgPrepareFast)
 			{
 				if (this->amCurrentLeader())
 				{
-					if (this->log.storeMsgPrepareFast(msgPrepareFast) == this->trustedQuorumSize)
+					if (this->log.storeMsgPrepareFast(msgPrepareFast) >= this->trustedQuorumSize)
 					{
-						this->initiateMsgPrepareFast(roundData_MsgPrepareFast);
+						if (!this->amTrustfailReplicaIds() && this->log.checkMsgPrepareFast(this->view, this->trustedQuorumSize))
+						{
+							this->initiateMsgPrepareFast(roundData_MsgPrepareFast);
+						}
+						else
+						{
+							this->initiateMsgPrepareFast(roundData_MsgPrepareFast);
+						}
 					}
 				}
 				else
@@ -2342,7 +2349,11 @@ void ResiBFT::handleMsgPrecommitFast(MsgPrecommitFast msgPrecommitFast)
 			{
 				if (this->amCurrentLeader())
 				{
-					if (this->log.storeMsgPrecommitFast(msgPrecommitFast) == this->trustedQuorumSize)
+					if (!this->amTrustfailReplicaIds() && this->log.checkMsgPrecommitFast(this->view, this->trustedQuorumSize))
+					{
+						this->initiateMsgPrecommitFast(roundData_MsgPrecommitFast);
+					}
+					else
 					{
 						this->initiateMsgPrecommitFast(roundData_MsgPrecommitFast);
 					}
