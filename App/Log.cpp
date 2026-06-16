@@ -1015,6 +1015,27 @@ MsgPrecommitFast Log::firstMsgPrecommitFast(View view)
 	return msgPrecommit;
 }
 
+MsgValidationFast Log::firstMsgValidationFast(View view)
+{
+	std::map<View, std::set<MsgValidationFast>>::iterator itView = this->validationsFast.find(view);
+	if (itView != this->validationsFast.end())
+	{
+		std::set<MsgValidationFast> msgValidations = itView->second;
+		if (msgValidations.size() > 0)
+		{
+			std::set<MsgValidationFast>::iterator itMsg = msgValidations.begin();
+			MsgValidationFast msgValidation = *itMsg;
+			return msgValidation;
+		}
+	}
+	Block block;
+	Validations validations;
+	RoundData roundData;
+	Signs signs;
+	MsgValidationFast msgValidation = MsgValidationFast(block, validations, roundData, signs);
+	return msgValidation;
+}
+
 // Fast2common ResiBFT
 bool MsgLdrprepareFast2CommonFrom(std::set<MsgLdrprepareFast2Common> msgLdrprepares, std::set<ReplicaID> signers)
 {

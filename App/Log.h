@@ -87,6 +87,7 @@ public:
 	MsgLdrprepareFast firstMsgLdrprepareFast(View view);
 	MsgPrepareFast firstMsgPrepareFast(View view);
 	MsgPrecommitFast firstMsgPrecommitFast(View view);
+	MsgValidationFast firstMsgValidationFast(View view);
 
 	// Fast2common ResiBFT
 	// Return the number of signatures

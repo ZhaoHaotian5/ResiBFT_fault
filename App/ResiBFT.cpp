@@ -1647,13 +1647,13 @@ void ResiBFT::handleEarlierMessagesFast()
 	}
 	else
 	{
-		MsgLdrprepareFast msgLdrprepareFast = this->log.firstMsgLdrprepareFast(this->view);
-		ProposalFast proposalFast_MsgLdrprepareFast = msgLdrprepareFast.proposalFast;
-		Accumulator accumulator_MsgLdrprepareFast = proposalFast_MsgLdrprepareFast.getAccumulator();
-		View proposeView_MsgLdrprepareFast = accumulator_MsgLdrprepareFast.getProposeView();
-		if (proposeView_MsgLdrprepareFast == this->view)
+		if (this->amCommitteeReplicaIds())
 		{
-			if (this->amCommitteeReplicaIds())
+			MsgLdrprepareFast msgLdrprepareFast = this->log.firstMsgLdrprepareFast(this->view);
+			ProposalFast proposalFast_MsgLdrprepareFast = msgLdrprepareFast.proposalFast;
+			Accumulator accumulator_MsgLdrprepareFast = proposalFast_MsgLdrprepareFast.getAccumulator();
+			View proposeView_MsgLdrprepareFast = accumulator_MsgLdrprepareFast.getProposeView();
+			if (proposeView_MsgLdrprepareFast == this->view)
 			{
 				if (DEBUG_HELP)
 				{
@@ -1782,79 +1782,75 @@ void ResiBFT::handleEarlierMessagesFast()
 		{
 			if (DEBUG_HELP)
 			{
-				std::cout << COLOUR_BLUE << this->printReplicaId() << "Replica handling earlier messages for fast path to common path" << COLOUR_NORMAL << std::endl;
+				std::cout << COLOUR_BLUE << this->printReplicaId() << "Replica handling earlier messages in fast path" << COLOUR_NORMAL << std::endl;
 			}
 
-			MsgLdrprepareFast2Common msgLdrprepareFast2Common = this->log.firstMsgLdrprepareFast2Common(this->view);
-			ProposalCommon proposalCommon_MsgLdrprepareFast2Common = msgLdrprepareFast2Common.proposalCommon;
-			Justification justification_MsgLdrprepareFast2Common = proposalCommon_MsgLdrprepareFast2Common.getJustification();
-			View proposeView_MsgLdrprepareFast2Common = justification_MsgLdrprepareFast2Common.getRoundData().getProposeView();
-			if (proposeView_MsgLdrprepareFast2Common == this->view)
+			MsgValidationFast msgValidationFast = this->log.firstMsgValidationFast(this->view);
+			RoundData roundData_MsgValidationFast = msgValidationFast.roundData;
+			View proposeView_MsgValidationFast = roundData_MsgValidationFast.getProposeView();
+			if (proposeView_MsgLdrprepareFast == this->view)
 			{
-				// Check if the view has already been locked
-				MsgPrecommitFast2Common msgPrecommitFast2Common = this->log.firstMsgPrecommitFast2Common(this->view);
-				RoundData roundData_MsgPrecommitFast2Common = msgPrecommitFast2Common.roundData;
-				Signs signs_MsgPrecommitFast2Common = msgPrecommitFast2Common.signs;
-				Justification justification_MsgPrecommitFast2Common = Justification(roundData_MsgPrecommitFast2Common, signs_MsgPrecommitFast2Common);
-				if (signs_MsgPrecommitFast2Common.getSize() == this->generalQuorumSize)
+				if (DEBUG_HELP)
 				{
-					if (DEBUG_HELP)
-					{
-						std::cout << COLOUR_BLUE << this->printReplicaId() << "Catching up using MsgPrecommit certificate for fast path to common path" << COLOUR_NORMAL << std::endl;
-					}
-
-					// Skip the prepare phase and pre-commit phase
-					this->initializeMsgNewviewCommon();
-					this->initializeMsgNewviewCommon();
-
-					// Fill the block and check the committee
-					Committee committee_MsgLdrprepareFast2Common = msgLdrprepareFast2Common.committee;
-					Block block = proposalCommon_MsgLdrprepareFast2Common.getBlock();
-					this->blocks[this->view] = block;
-					if (DEBUG_HELP)
-					{
-						std::cout << COLOUR_BLUE << this->printReplicaId() << "Fill the block with MsgLdrprepare" << COLOUR_NORMAL << std::endl;
-					}
-
-					if (committee_MsgLdrprepareFast2Common.isSet())
-					{
-						this->committee = committee_MsgLdrprepareFast2Common;
-						if (DEBUG_HELP)
-						{
-							std::cout << COLOUR_BLUE << this->printReplicaId() << "Update the committee" << COLOUR_NORMAL << std::endl;
-						}
-					}
-
-					// Store [justification_MsgPrecommitFast2Common]
-					this->respondMsgPrecommitFast2Common(justification_MsgPrecommitFast2Common);
-
-					MsgCommitFast2Common msgCommitFast2Common = this->log.firstMsgCommitFast2Common(this->view);
-					RoundData roundData_MsgCommitFast2Common = msgCommitFast2Common.roundData;
-					Signs signs_MsgCommitFast2Common = msgCommitFast2Common.signs;
-					Justification justification_MsgCommitFast2Common = Justification(roundData_MsgCommitFast2Common, signs_MsgCommitFast2Common);
-					if (signs_MsgCommitFast2Common.getSize() == this->generalQuorumSize)
-					{
-						this->executeBlockCommon(justification_MsgCommitFast2Common.getRoundData());
-					}
+					std::cout << COLOUR_BLUE << this->printReplicaId() << "Catching up using MsgValidation certificate in fast path" << COLOUR_NORMAL << std::endl;
 				}
-				else
+
+				Signs signs_MsgValidationFast = msgValidationFast.signs;
+				Phase phase_MsgValidationFast = roundData_MsgValidationFast.getPhase();
+				Justification justification_MsgValidationFast = Justification(roundData_MsgValidationFast, signs_MsgValidationFast);
+
+				if (signs_MsgValidationFast.getSize() == this->trustedQuorumSize && this->verifyJustification(justification_MsgValidationFast))
 				{
-					MsgPrepareFast2Common msgPrepareFast2Common = this->log.firstMsgPrepareFast2Common(this->view);
-					RoundData roundData_MsgPrepareFast2Common = msgPrepareFast2Common.roundData;
-					Signs signs_MsgPrepareFast2Common = msgPrepareFast2Common.signs;
-					Justification justification_MsgPrepareFast2Common = Justification(roundData_MsgPrepareFast2Common, signs_MsgPrepareFast2Common);
-					if (signs_MsgPrepareFast2Common.getSize() == this->generalQuorumSize)
+					this->blocks[this->view] = block;
+					this->validations[this->view] = validations_MsgValidationFast;
+					bool isFail_MsgValidationFast = validations_MsgValidationFast.isAccepted();
+
+					Validation validation_MsgValidationFast = this->checkBlock(justification_MsgValidationFast, isFail_MsgValidationFast);
+					if (DEBUG_HELP)
+					{
+						std::cout << COLOUR_BLUE << this->printReplicaId() << "Checking MsgValidation in fast path: " << validation_MsgValidationFast.toPrint() << COLOUR_NORMAL << std::endl;
+					}
+
+					if (validation_MsgValidationFast.isAccepted())
+					{
+						Hash verifyHash_Checkpoint = this->blocks[this->view].getPreviousHash();
+						View verifyView_Checkpoint = this->view - 1;
+						Validations validations_Checkpoint = this->validations[this->view];
+						Signs signs_Checkpoint = signs_MsgValidationFast;
+						this->updateCheckpoint(verifyHash_Checkpoint, verifyView_Checkpoint, validations_Checkpoint, signs_Checkpoint);
+					}
+
+					this->executeBlockFast(roundData_MsgValidationFast, validation_MsgValidationFast);
+				}
+			}
+			else
+			{
+				if (DEBUG_HELP)
+				{
+					std::cout << COLOUR_BLUE << this->printReplicaId() << "Replica handling earlier messages for fast path to common path" << COLOUR_NORMAL << std::endl;
+				}
+
+				MsgLdrprepareFast2Common msgLdrprepareFast2Common = this->log.firstMsgLdrprepareFast2Common(this->view);
+				ProposalCommon proposalCommon_MsgLdrprepareFast2Common = msgLdrprepareFast2Common.proposalCommon;
+				Justification justification_MsgLdrprepareFast2Common = proposalCommon_MsgLdrprepareFast2Common.getJustification();
+				View proposeView_MsgLdrprepareFast2Common = justification_MsgLdrprepareFast2Common.getRoundData().getProposeView();
+				if (proposeView_MsgLdrprepareFast2Common == this->view)
+				{
+					// Check if the view has already been locked
+					MsgPrecommitFast2Common msgPrecommitFast2Common = this->log.firstMsgPrecommitFast2Common(this->view);
+					RoundData roundData_MsgPrecommitFast2Common = msgPrecommitFast2Common.roundData;
+					Signs signs_MsgPrecommitFast2Common = msgPrecommitFast2Common.signs;
+					Justification justification_MsgPrecommitFast2Common = Justification(roundData_MsgPrecommitFast2Common, signs_MsgPrecommitFast2Common);
+					if (signs_MsgPrecommitFast2Common.getSize() == this->generalQuorumSize)
 					{
 						if (DEBUG_HELP)
 						{
-							std::cout << COLOUR_BLUE << this->printReplicaId() << "Catching up using MsgPrepare certificate for fast path to common path" << COLOUR_NORMAL << std::endl;
+							std::cout << COLOUR_BLUE << this->printReplicaId() << "Catching up using MsgPrecommit certificate for fast path to common path" << COLOUR_NORMAL << std::endl;
 						}
 
-						// Skip the prepare phase
+						// Skip the prepare phase and pre-commit phase
 						this->initializeMsgNewviewCommon();
-
-						// Store [justification_MsgPrepareFast2Common]
-						this->respondMsgPrepareFast2Common(justification_MsgPrepareFast2Common);
+						this->initializeMsgNewviewCommon();
 
 						// Fill the block and check the committee
 						Committee committee_MsgLdrprepareFast2Common = msgLdrprepareFast2Common.committee;
@@ -1862,7 +1858,7 @@ void ResiBFT::handleEarlierMessagesFast()
 						this->blocks[this->view] = block;
 						if (DEBUG_HELP)
 						{
-							std::cout << COLOUR_BLUE << this->printReplicaId() << "Fill the block with MsgLdrprepare for fast path to common path" << COLOUR_NORMAL << std::endl;
+							std::cout << COLOUR_BLUE << this->printReplicaId() << "Fill the block with MsgLdrprepare" << COLOUR_NORMAL << std::endl;
 						}
 
 						if (committee_MsgLdrprepareFast2Common.isSet())
@@ -1873,26 +1869,76 @@ void ResiBFT::handleEarlierMessagesFast()
 								std::cout << COLOUR_BLUE << this->printReplicaId() << "Update the committee" << COLOUR_NORMAL << std::endl;
 							}
 						}
+
+						// Store [justification_MsgPrecommitFast2Common]
+						this->respondMsgPrecommitFast2Common(justification_MsgPrecommitFast2Common);
+
+						MsgCommitFast2Common msgCommitFast2Common = this->log.firstMsgCommitFast2Common(this->view);
+						RoundData roundData_MsgCommitFast2Common = msgCommitFast2Common.roundData;
+						Signs signs_MsgCommitFast2Common = msgCommitFast2Common.signs;
+						Justification justification_MsgCommitFast2Common = Justification(roundData_MsgCommitFast2Common, signs_MsgCommitFast2Common);
+						if (signs_MsgCommitFast2Common.getSize() == this->generalQuorumSize)
+						{
+							this->executeBlockCommon(justification_MsgCommitFast2Common.getRoundData());
+						}
 					}
 					else
 					{
-						Signs signs_MsgLdrprepareFast2Common = msgLdrprepareFast2Common.signs;
-
-						// Check if the proposal has been stored
-						if (signs_MsgLdrprepareFast2Common.getSize() == 1)
+						MsgPrepareFast2Common msgPrepareFast2Common = this->log.firstMsgPrepareFast2Common(this->view);
+						RoundData roundData_MsgPrepareFast2Common = msgPrepareFast2Common.roundData;
+						Signs signs_MsgPrepareFast2Common = msgPrepareFast2Common.signs;
+						Justification justification_MsgPrepareFast2Common = Justification(roundData_MsgPrepareFast2Common, signs_MsgPrepareFast2Common);
+						if (signs_MsgPrepareFast2Common.getSize() == this->generalQuorumSize)
 						{
 							if (DEBUG_HELP)
 							{
-								std::cout << COLOUR_BLUE << this->printReplicaId() << "Catching up using MsgLdrprepare proposal for fast path to common path" << COLOUR_NORMAL << std::endl;
+								std::cout << COLOUR_BLUE << this->printReplicaId() << "Catching up using MsgPrepare certificate for fast path to common path" << COLOUR_NORMAL << std::endl;
 							}
+
+							// Skip the prepare phase
+							this->initializeMsgNewviewCommon();
+
+							// Store [justification_MsgPrepareFast2Common]
+							this->respondMsgPrepareFast2Common(justification_MsgPrepareFast2Common);
+
+							// Fill the block and check the committee
 							Committee committee_MsgLdrprepareFast2Common = msgLdrprepareFast2Common.committee;
 							Block block = proposalCommon_MsgLdrprepareFast2Common.getBlock();
-							Justification justification_MsgLdrprepareFast2Common = proposalCommon_MsgLdrprepareFast2Common.getJustification();
+							this->blocks[this->view] = block;
+							if (DEBUG_HELP)
+							{
+								std::cout << COLOUR_BLUE << this->printReplicaId() << "Fill the block with MsgLdrprepare for fast path to common path" << COLOUR_NORMAL << std::endl;
+							}
+
 							if (committee_MsgLdrprepareFast2Common.isSet())
 							{
 								this->committee = committee_MsgLdrprepareFast2Common;
+								if (DEBUG_HELP)
+								{
+									std::cout << COLOUR_BLUE << this->printReplicaId() << "Update the committee" << COLOUR_NORMAL << std::endl;
+								}
 							}
-							this->respondMsgLdrprepareFast2Common(justification_MsgLdrprepareFast2Common, committee_MsgLdrprepareFast2Common, block);
+						}
+						else
+						{
+							Signs signs_MsgLdrprepareFast2Common = msgLdrprepareFast2Common.signs;
+
+							// Check if the proposal has been stored
+							if (signs_MsgLdrprepareFast2Common.getSize() == 1)
+							{
+								if (DEBUG_HELP)
+								{
+									std::cout << COLOUR_BLUE << this->printReplicaId() << "Catching up using MsgLdrprepare proposal for fast path to common path" << COLOUR_NORMAL << std::endl;
+								}
+								Committee committee_MsgLdrprepareFast2Common = msgLdrprepareFast2Common.committee;
+								Block block = proposalCommon_MsgLdrprepareFast2Common.getBlock();
+								Justification justification_MsgLdrprepareFast2Common = proposalCommon_MsgLdrprepareFast2Common.getJustification();
+								if (committee_MsgLdrprepareFast2Common.isSet())
+								{
+									this->committee = committee_MsgLdrprepareFast2Common;
+								}
+								this->respondMsgLdrprepareFast2Common(justification_MsgLdrprepareFast2Common, committee_MsgLdrprepareFast2Common, block);
+							}
 						}
 					}
 				}
@@ -1901,6 +1947,11 @@ void ResiBFT::handleEarlierMessagesFast()
 				{
 					std::cout << COLOUR_BLUE << this->printReplicaId() << "Replica handled earlier messages for fast path to common path" << COLOUR_NORMAL << std::endl;
 				}
+			}
+
+			if (DEBUG_HELP)
+			{
+				std::cout << COLOUR_BLUE << this->printReplicaId() << "Replica handled earlier messages in fast path" << COLOUR_NORMAL << std::endl;
 			}
 		}
 	}
