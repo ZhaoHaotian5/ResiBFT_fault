@@ -3507,7 +3507,7 @@ void ResiBFT::respondMsgLdrprepareFast(Accumulator accumulator_MsgLdrprepareFast
 void ResiBFT::respondMsgPrepareFast(Justification justification_MsgPrepareFast, bool isFail_MsgPrepareFast)
 {
 	// Create [justification_MsgPrecommitFast]
-	Justification justification_MsgPrecommitFast = this->saveMsgPrepareFast(justification_MsgPrepareFast, !isFail_MsgPrepareFast);
+	Justification justification_MsgPrecommitFast = this->saveMsgPrepareFast(justification_MsgPrepareFast, isFail_MsgPrepareFast);
 
 	// Create [msgPrecommitFast]
 	RoundData roundData_MsgPrecommitFast = justification_MsgPrecommitFast.getRoundData();
