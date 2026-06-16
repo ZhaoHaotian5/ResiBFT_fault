@@ -2291,6 +2291,10 @@ void ResiBFT::handleMsgPrepareFast(MsgPrepareFast msgPrepareFast)
 							this->initiateMsgPrepareFast(roundData_MsgPrepareFast);
 							this->isHandleMsgPrepareFast = true;
 						}
+						else if (this->log.storeMsgPrepareFast(msgPrepareFast) == NUM_COMMITTEE_MEMBERS)
+						{
+							this->initiateMsgPrepareFast(roundData_MsgPrepareFast);
+						}
 					}
 					else
 					{
@@ -2359,6 +2363,10 @@ void ResiBFT::handleMsgPrecommitFast(MsgPrecommitFast msgPrecommitFast)
 						{
 							this->initiateMsgPrecommitFast(roundData_MsgPrecommitFast);
 							this->isHandleMsgPrecommitFast = true;
+						}
+						else if (this->log.storeMsgPrecommitFast(msgPrecommitFast) == NUM_COMMITTEE_MEMBERS)
+						{
+							this->initiateMsgPrecommitFast(roundData_MsgPrecommitFast);
 						}
 					}
 					else
