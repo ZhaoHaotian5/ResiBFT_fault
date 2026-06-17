@@ -2634,14 +2634,14 @@ void ResiBFT::handleMsgPrepareFast2Common(MsgPrepareFast2Common msgPrepareFast2C
 		{
 			if (this->path == FAST_PATH)
 			{
-				if (this->replicaId == singer_MsgPrepareFast2Common)
+				if (signs_MsgPrepareFast2Common.getSize() == 1)
 				{
 					if (this->log.storeMsgPrepareFast2Common(msgPrepareFast2Common) == this->generalQuorumSize)
 					{
 						this->initiateMsgPrepareFast2Common(roundData_MsgPrepareFast2Common);
 					}
 				}
-				else
+				else if (signs_MsgPrepareFast2Common.getSize() > 1)
 				{
 					if (signs_MsgPrepareFast2Common.getSize() == this->generalQuorumSize)
 					{
@@ -2693,14 +2693,14 @@ void ResiBFT::handleMsgPrecommitFast2Common(MsgPrecommitFast2Common msgPrecommit
 		{
 			if (this->path == FAST_PATH)
 			{
-				if (this->replicaId == singer_MsgPrepareFast2Common)
+				if (signs_MsgPrecommitFast2Common.getSize() == 1)
 				{
 					if (this->log.storeMsgPrecommitFast2Common(msgPrecommitFast2Common) == this->generalQuorumSize)
 					{
 						this->initiateMsgPrecommitFast2Common(roundData_MsgPrecommitFast2Common);
 					}
 				}
-				else
+				else if (signs_MsgPrecommitFast2Common.getSize() > 1)
 				{
 					if (signs_MsgPrecommitFast2Common.getSize() == this->generalQuorumSize)
 					{
@@ -2751,14 +2751,14 @@ void ResiBFT::handleMsgCommitFast2Common(MsgCommitFast2Common msgCommitFast2Comm
 		{
 			if (this->path == FAST_PATH)
 			{
-				if (this->replicaId == singer_MsgPrepareFast2Common)
+				if (signs_MsgCommitFast2Common.getSize() == 1)
 				{
 					if (this->log.storeMsgCommitFast2Common(msgCommitFast2Common) == this->generalQuorumSize)
 					{
 						this->initiateMsgCommitFast2Common(roundData_MsgCommitFast2Common);
 					}
 				}
-				else
+				else if (signs_MsgCommitFast2Common.getSize() > 1)
 				{
 					if (signs_MsgCommitFast2Common.getSize() == this->generalQuorumSize)
 					{
