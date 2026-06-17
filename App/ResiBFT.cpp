@@ -930,12 +930,20 @@ Justification ResiBFT::saveMsgPrepareFast(Justification justification_MsgPrepare
 	return justification_MsgPrecommit;
 }
 
+Justification ResiBFT::initializeMsgNewviewFast2Common(Justification justification_MsgNewviewFast)
+{
+	Justification_t justification_MsgNewviewFast_t;
+	setJustification(justification_MsgNewviewFast, &justification_MsgNewviewFast_t);
+	Justification_t justification_MsgNewviewFast2Common_t;
+	sgx_status_t enclave_status_t;
+	sgx_status_t ecall_status_t;
+	ecall_status_t = TEE_initializeMsgNewviewFast2Common(global_eid, &enclave_status_t, &justification_MsgNewviewFast_t, &justification_MsgNewviewFast2Common_t);
+	Justification justification_MsgNewviewFast2Common = getJustification(&justification_MsgNewviewFast2Common_t);
+	return justification_MsgNewviewFast2Common;
+}
+
 Justification ResiBFT::respondProposalFast2Common(Hash proposeHash, Justification justification_MsgNewviewFast)
 {
-	if (DEBUG_HELP)
-	{
-		std::cout << COLOUR_BLUE << this->printReplicaId() << "respondProposalFast2Common started " << this->view << COLOUR_NORMAL << std::endl;
-	}
 	Justification justification_MsgPrepareCommon = Justification();
 	if (this->amTrustedReplicaIds())
 	{
@@ -951,15 +959,7 @@ Justification ResiBFT::respondProposalFast2Common(Hash proposeHash, Justificatio
 	}
 	else
 	{
-		if (DEBUG_HELP)
-		{
-			std::cout << COLOUR_BLUE << this->printReplicaId() << "General respondProposalFast2Common started " << this->view << COLOUR_NORMAL << std::endl;
-		}
 		justification_MsgPrepareCommon = generalRep.respondProposalFast2Common(this->nodes, proposeHash, justification_MsgNewviewFast);
-		if (DEBUG_HELP)
-		{
-			std::cout << COLOUR_BLUE << this->printReplicaId() << "General respondProposalFast2Common ended " << this->view << COLOUR_NORMAL << std::endl;
-		}
 	}
 	return justification_MsgPrepareCommon;
 }
@@ -2469,6 +2469,16 @@ void ResiBFT::handleMsgPrecommitFast(MsgPrecommitFast msgPrecommitFast)
 					{
 						std::cout << COLOUR_BLUE << this->printReplicaId() << "Checking MsgPrecommit in fast path: " << validation_MsgPrecommitFast.toPrint() << COLOUR_NORMAL << std::endl;
 					}
+
+					if (this->amTrustfailReplicaIds())
+					{
+						validation_MsgPrecommitFast = Validation(validation_MsgPrecommitFast.isSet(), !validation_MsgPrecommitFast.isAccepted());
+						if (DEBUG_HELP)
+						{
+							std::cout << COLOUR_BLUE << this->printReplicaId() << "Fail replica modifies the check result in fast path: " << validation_MsgValidationFast.toPrint() << COLOUR_NORMAL << std::endl;
+						}
+					}
+
 					this->executeBlockFast(roundData_MsgPrecommitFast, validation_MsgPrecommitFast);
 				}
 			}
@@ -2503,6 +2513,7 @@ void ResiBFT::handleMsgValidationFast(MsgValidationFast msgValidationFast)
 	{
 		std::cout << COLOUR_BLUE << this->printReplicaId() << "Handling MsgValidation in fast path: " << msgValidationFast.toPrint() << COLOUR_NORMAL << std::endl;
 	}
+	bool isFail_MsgValidationFast = msgValidationFast.isFail;
 	Block block = msgValidationFast.block;
 	Validations validations_MsgValidationFast = msgValidationFast.validations;
 	RoundData roundData_MsgValidationFast = msgValidationFast.roundData;
@@ -2521,13 +2532,13 @@ void ResiBFT::handleMsgValidationFast(MsgValidationFast msgValidationFast)
 				{
 					this->blocks[this->view] = block;
 					this->validations[this->view] = validations_MsgValidationFast;
-					bool isFail_MsgValidationFast = !validations_MsgValidationFast.isAccepted();
-					if (DEBUG_HELP)
+					bool isFail = false;
+					if (isFail_MsgValidationFast || !validations_MsgValidationFast.isAccepted())
 					{
-						std::cout << COLOUR_BLUE << this->printReplicaId() << "Yes or No: " << isFail_MsgValidationFast << COLOUR_NORMAL << std::endl;
+						isFail = true;
 					}
 
-					Validation validation_MsgValidationFast = this->checkBlock(justification_MsgValidationFast, isFail_MsgValidationFast);
+					Validation validation_MsgValidationFast = this->checkBlock(justification_MsgValidationFast, isFail);
 					if (DEBUG_HELP)
 					{
 						std::cout << COLOUR_BLUE << this->printReplicaId() << "Checking MsgValidation in fast path: " << validation_MsgValidationFast.toPrint() << COLOUR_NORMAL << std::endl;
@@ -2540,6 +2551,15 @@ void ResiBFT::handleMsgValidationFast(MsgValidationFast msgValidationFast)
 						Validations validations_Checkpoint = this->validations[this->view];
 						Signs signs_Checkpoint = signs_MsgValidationFast;
 						this->updateCheckpoint(verifyHash_Checkpoint, verifyView_Checkpoint, validations_Checkpoint, signs_Checkpoint);
+					}
+
+					if (this->amTrustfailReplicaIds())
+					{
+						validation_MsgValidationFast = Validation(validation_MsgValidationFast.isSet(), !validation_MsgValidationFast.isAccepted());
+						if (DEBUG_HELP)
+						{
+							std::cout << COLOUR_BLUE << this->printReplicaId() << "Fail replica modifies the check result in fast path: " << validation_MsgValidationFast.toPrint() << COLOUR_NORMAL << std::endl;
+						}
 					}
 
 					this->executeBlockFast(roundData_MsgValidationFast, validation_MsgValidationFast);
@@ -3090,16 +3110,17 @@ void ResiBFT::initiateMsgNewviewFast()
 
 			// Create [block] extends the highest prepared block
 			Justification justification_MsgNewviewFast = this->log.findHighestMsgNewviewFast(this->view);
-			RoundData roundData_MsgNewviewFast = justification_MsgNewviewFast.getRoundData();
-			Hash justifyHash_MsgNewviewFast = roundData_MsgNewviewFast.getJustifyHash();
+			Justification justification_MsgNewviewFast2Common = this->initializeMsgNewviewFast2Common(justification_MsgNewviewFast);
+			RoundData roundData_MsgNewviewFast2Common = justification_MsgNewviewFast2Common.getRoundData();
+			Hash justifyHash_MsgNewviewFast2Common = roundData_MsgNewviewFast2Common.getJustifyHash();
 			if (DEBUG_HELP)
 			{
-				std::cout << COLOUR_BLUE << this->printReplicaId() << "Highest Newview for view " << this->view << ": " << justification_MsgNewviewFast.toPrint() << COLOUR_NORMAL << std::endl;
+				std::cout << COLOUR_BLUE << this->printReplicaId() << "Modified Newview for view " << this->view << ": " << justification_MsgNewviewFast2Common.toPrint() << COLOUR_NORMAL << std::endl;
 			}
-			Block block = this->createNewBlock(justifyHash_MsgNewviewFast);
+			Block block = this->createNewBlock(justifyHash_MsgNewviewFast2Common);
 
 			// Create [justification_MsgPrepareFast2Common] for that [block]
-			Justification justification_MsgPrepareFast2Common = this->respondProposalFast2Common(block.hash(), justification_MsgNewviewFast);
+			Justification justification_MsgPrepareFast2Common = this->respondProposalFast2Common(block.hash(), justification_MsgNewviewFast2Common);
 			if (justification_MsgPrepareFast2Common.isSet())
 			{
 				if (DEBUG_HELP)
@@ -3109,7 +3130,7 @@ void ResiBFT::initiateMsgNewviewFast()
 				this->blocks[this->view] = block;
 
 				// Create [msgLdrprepareFast2Common] out of [block]
-				ProposalCommon proposal_MsgLdrprepareFast2Common = ProposalCommon(justification_MsgNewviewFast, block);
+				ProposalCommon proposal_MsgLdrprepareFast2Common = ProposalCommon(justification_MsgNewviewFast2Common, block);
 				Signs signs_MsgLdrprepareFast2Common = this->initializeMsgLdrprepareFast2Common(proposal_MsgLdrprepareFast2Common);
 				MsgLdrprepareFast2Common msgLdrprepareFast2Common = MsgLdrprepareFast2Common(proposal_MsgLdrprepareFast2Common, committee_MsgLdrprepareFast2Common, signs_MsgLdrprepareFast2Common);
 
@@ -3269,6 +3290,11 @@ void ResiBFT::initiateMsgPrecommitFast(RoundData roundData_MsgPrecommitFast)
 		RoundData roundData_MsgValidationFast = roundData_MsgPrecommitFast;
 		Signs signs_MsgValidationFast = signs_MsgPrecommitFast;
 		MsgValidationFast msgValidationFast = MsgValidationFast(block, validations_MsgValidationFast, roundData_MsgValidationFast, signs_MsgValidationFast);
+		if (this->amTrustfailReplicaIds())
+		{
+			bool isFail_MsgValidationFast = true;
+			msgValidationFast = MsgValidationFast(isFail_MsgValidationFast, block, validations_MsgValidationFast, roundData_MsgValidationFast, signs_MsgValidationFast);
+		}
 
 		// Send [msgValidationFast] to non-committee members
 		Peers recipients_msgValidationFast = this->keepFromCommitteePeers(this->committee, this->replicaId);
@@ -3295,6 +3321,15 @@ void ResiBFT::initiateMsgPrecommitFast(RoundData roundData_MsgPrecommitFast)
 			Validations validations_Checkpoint = this->validations[this->view];
 			Signs signs_Checkpoint = signs_MsgPrecommitFast;
 			this->updateCheckpoint(verifyHash_Checkpoint, verifyView_Checkpoint, validations_Checkpoint, signs_Checkpoint);
+		}
+
+		if (this->amTrustfailReplicaIds())
+		{
+			validation_MsgPrecommitFast = Validation(validation_MsgPrecommitFast.isSet(), !validation_MsgPrecommitFast.isAccepted());
+			if (DEBUG_HELP)
+			{
+				std::cout << COLOUR_BLUE << this->printReplicaId() << "Fail replica modifies the check result in fast path: " << validation_MsgValidationFast.toPrint() << COLOUR_NORMAL << std::endl;
+			}
 		}
 
 		// Execute the block
@@ -3331,6 +3366,11 @@ void ResiBFT::initiateMsgPrecommitFast(RoundData roundData_MsgPrecommitFast)
 		RoundData roundData_MsgValidationFast = roundData_MsgPrecommitFast;
 		Signs signs_MsgValidationFast = signs_MsgPrecommitFastAll;
 		MsgValidationFast msgValidationFast = MsgValidationFast(block, validations_MsgValidationFast, roundData_MsgValidationFast, signs_MsgValidationFast);
+		if (this->amTrustfailReplicaIds())
+		{
+			bool isFail_MsgValidationFast = true;
+			msgValidationFast = MsgValidationFast(isFail_MsgValidationFast, block, validations_MsgValidationFast, roundData_MsgValidationFast, signs_MsgValidationFast);
+		}
 
 		// Send [msgValidationFast] to non-committee members
 		Peers recipients_msgValidationFast = this->keepFromCommitteePeers(this->committee, this->replicaId);

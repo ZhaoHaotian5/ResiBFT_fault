@@ -130,6 +130,8 @@ void GeneralRep::initializeCheckpoint(Hash proposeHash, View proposeView)
 void GeneralRep::updateCheckpoint(Hash verifyHash, View verifyView, Validations validations, Signs signs)
 {
 	this->checkpoint = Checkpoint(verifyHash, verifyView, validations, signs);
+	this->lockHash = verifyHash;
+	this->lockView = verifyView;
 }
 
 Validation GeneralRep::checkBlock(Nodes nodes, Justification justification, bool isFail)
@@ -144,8 +146,8 @@ Validation GeneralRep::checkBlock(Nodes nodes, Justification justification, bool
 		{
 			std::cout << COLOUR_CYAN << this->replicaId << " check block successfully" << COLOUR_NORMAL << std::endl;
 		}
-		this->lockHash = proposeHash;
-		this->lockView = proposeView;
+		this->prepareHash = proposeHash;
+		this->prepareView = proposeView;
 		bool set_Validation = true;
 		bool verifier_Validation = true;
 		Validation validation = Validation(set_Validation, verifier_Validation);
@@ -264,7 +266,7 @@ Justification GeneralRep::respondProposalFast2Common(Nodes nodes, Hash proposeHa
 {
 	if (DEBUG_HELP)
 	{
-		std::cout << COLOUR_BLUE << this->printReplicaId() << "General respondProposalFast2Common started in modules " << this->view << COLOUR_NORMAL << std::endl;
+		std::cout << COLOUR_BLUE << this->replicaId << "General respondProposalFast2Common started in modules " << this->view << COLOUR_NORMAL << std::endl;
 	}
 	RoundData roundData_MsgNewviewFast = justification_MsgNewviewFast.getRoundData();
 	View proposeView_MsgNewviewFast = roundData_MsgNewviewFast.getProposeView();
@@ -309,6 +311,7 @@ Justification GeneralRep::respondProposalFast2Common(Nodes nodes, Hash proposeHa
 		{
 			std::cout << COLOUR_BLUE << this->replicaId << " Condition 4 false" << COLOUR_NORMAL << std::endl;
 		}
+		std::cout << COLOUR_BLUE << this->replicaId << " lockView:" << this->lockView << " justifyView:" << justifyView_MsgNewviewFast << COLOUR_NORMAL << std::endl;
 	}
 
 	if (this->verifyJustification(nodes, justification_MsgNewviewFast) && this->view == proposeView_MsgNewviewFast && phase_MsgNewviewFast == PHASE_NEWVIEW_FAST && (this->lockHash == justifyHash_MsgNewviewFast || this->lockView < justifyView_MsgNewviewFast))

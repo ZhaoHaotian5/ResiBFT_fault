@@ -158,6 +158,7 @@ private:
 	Signs initializeMsgLdrprepareFast(ProposalFast proposal_MsgLdrprepare);
 	Justification saveMsgPrepareFast(Justification justification_MsgPrepareFast, bool isFail_MsgPrepareFast);
 
+	Justification initializeMsgNewviewFast2Common(Justification justification_MsgNewviewFast);
 	Justification respondProposalFast2Common(Hash proposeHash, Justification justification_MsgNewviewFast);
 	Signs initializeMsgLdrprepareFast2Common(ProposalCommon proposal_MsgLdrprepareFast2Common);
 	Justification saveMsgPrepareFast2Common(Justification justification_MsgPrepareFast2Common);

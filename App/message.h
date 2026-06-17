@@ -561,28 +561,41 @@ struct MsgValidationFast
 {
 	static const uint8_t opcode = HEADER_VALIDATION_RESIBFT_FAST;
 	salticidae::DataStream serialized;
+	bool isFail;
 	Block block;
 	Validations validations;
 	RoundData roundData;
 	Signs signs;
 
-	MsgValidationFast(const Block &block, const Validations &validations, const RoundData &roundData, const Signs &signs) : block(block), validations(validations), roundData(roundData), signs(signs) { serialized << block << validations << roundData << signs; }
-	MsgValidationFast(salticidae::DataStream &&data) { data >> block >> validations >> roundData >> signs; }
+	MsgValidationFast(const Block &block, const Validations &validations, const RoundData &roundData, const Signs &signs) : isFail(false), block(block), validations(validations), roundData(roundData), signs(signs) { serialized << isFail << block << validations << roundData << signs; }
+	MsgValidationFast(const bool &isFail, const Block &block, const Validations &validations, const RoundData &roundData, const Signs &signs) : isFail(isFail), block(block), validations(validations), roundData(roundData), signs(signs) { serialized << isFail << block << validations << roundData << signs; }
+	MsgValidationFast(salticidae::DataStream &&data) { data >> isFail >> block >> validations >> roundData >> signs; }
 
 	void serialize(salticidae::DataStream &data) const
 	{
-		data << block << validations << roundData << signs;
+		data << isFail << block << validations << roundData << signs;
 	}
 
 	unsigned int sizeMsg()
 	{
-		return (sizeof(Block) + sizeof(Validations) + sizeof(RoundData) + sizeof(Signs));
+		return (sizeof(bool) + sizeof(Block) + sizeof(Validations) + sizeof(RoundData) + sizeof(Signs));
 	}
 
 	std::string toPrint()
 	{
+		std::string textFail = "";
+		if (isFail)
+		{
+			textFail = "FAIL";
+		}
+		else
+		{
+			textFail = "CORR";
+		}
 		std::string text = "";
 		text += "RESIBFT_FAST_MSGVALIDATION[";
+		text += textFail;
+		text += ",";
 		text += block.toPrint();
 		text += ",";
 		text += validations.toPrint();

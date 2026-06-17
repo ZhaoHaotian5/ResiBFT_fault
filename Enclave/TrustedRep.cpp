@@ -131,22 +131,22 @@ sgx_status_t TEE_fast2common()
 	return status_t;
 }
 
-sgx_status_t TEE_initializeCheckpoint(Hash_t *proposeHash_t, View *proposeView)
+sgx_status_t TEE_initializeCheckpoint(Hash_t *proposeHash_t, View *proposeView_t)
 {
 	sgx_status_t status_t = SGX_SUCCESS;
 
 	checkpoint_t.verifyHash = *proposeHash_t;
-	checkpoint_t.verifyView = *proposeView;
+	checkpoint_t.verifyView = *proposeView_t;
 
 	return status_t;
 }
 
-sgx_status_t TEE_updateCheckpoint(Hash_t *verifyHash_t, View *verifyView, Validations_t *validations_t, Signs_t *signs_t)
+sgx_status_t TEE_updateCheckpoint(Hash_t *verifyHash_t, View *verifyView_t, Validations_t *validations_t, Signs_t *signs_t)
 {
 	sgx_status_t status_t = SGX_SUCCESS;
 
 	checkpoint_t.verifyHash = *verifyHash_t;
-	checkpoint_t.verifyView = *verifyView;
+	checkpoint_t.verifyView = *verifyView_t;
 	checkpoint_t.validations = *validations_t;
 	checkpoint_t.signs = *signs_t;
 
@@ -158,12 +158,15 @@ sgx_status_t TEE_checkBlock(Justification_t *justification_t, bool *isFail, Vali
 	sgx_status_t status_t = SGX_SUCCESS;
 
 	RoundData_t roundData_t = justification_t->roundData;
-	View proposeView = roundData_t.proposeView;
+	Hash_t proposeHash_t = roundData_t.proposeHash;
+	View proposeView_t = roundData_t.proposeView;
 
-	if (verifyJustification_t(justification_t) && proposeView >= checkpoint_t.verifyView && !(*isFail))
+	if (verifyJustification_t(justification_t) && proposeView_t >= checkpoint_t.verifyView && !(*isFail))
 	{
 		validation_t->set = true;
 		validation_t->verifier = true;
+		prepareHash_t = proposeHash_t;
+		prepareView_t = proposeView_t;
 	}
 	else
 	{
@@ -190,11 +193,11 @@ sgx_status_t TEE_respondProposalCommon(Hash_t *proposeHash_t, Justification_t *j
 	sgx_status_t status_t = SGX_SUCCESS;
 
 	RoundData_t roundData_MsgNewviewCommon_t = justification_MsgNewviewCommon_t->roundData;
-	View proposeView_MsgNewviewCommon = roundData_MsgNewviewCommon_t.proposeView;
+	View proposeView_MsgNewviewCommon_t = roundData_MsgNewviewCommon_t.proposeView;
 	Hash_t justifyHash_MsgNewviewCommon_t = roundData_MsgNewviewCommon_t.justifyHash;
 	View justifyView_MsgNewviewCommon_t = roundData_MsgNewviewCommon_t.justifyView;
 	Phase phase_MsgNewviewCommon_t = roundData_MsgNewviewCommon_t.phase;
-	if (verifyJustification_t(justification_MsgNewviewCommon_t) && view_t == proposeView_MsgNewviewCommon && phase_MsgNewviewCommon_t == PHASE_NEWVIEW_COMMON)
+	if (verifyJustification_t(justification_MsgNewviewCommon_t) && view_t == proposeView_MsgNewviewCommon_t && phase_MsgNewviewCommon_t == PHASE_NEWVIEW_COMMON)
 	{
 		*justification_MsgPrepareCommon_t = updateRoundDataCommon_t(*proposeHash_t, justifyHash_MsgNewviewCommon_t, justifyView_MsgNewviewCommon_t);
 	}
@@ -289,7 +292,7 @@ sgx_status_t TEE_initializeAccumulatorFast(Justifications_t *justifications_MsgN
 	sgx_status_t status_t = SGX_SUCCESS;
 
 	View proposeView_MsgNewviewFast = justifications_MsgNewviewFast_t->justifications[0].roundData.proposeView;
-	View highView = 0;
+	View highView_t = 0;
 	Hash_t highHash_t = initiateHash_t();
 	std::set<ReplicaID> signers;
 
@@ -306,9 +309,9 @@ sgx_status_t TEE_initializeAccumulatorFast(Justifications_t *justifications_MsgN
 			if (signers.find(signer) == signers.end())
 			{
 				signers.insert(signer);
-				if (justifyView_MsgNewviewFast >= highView)
+				if (justifyView_MsgNewviewFast >= highView_t)
 				{
-					highView = justifyView_MsgNewviewFast;
+					highView_t = justifyView_MsgNewviewFast;
 					highHash_t = justifyHash_MsgNewviewFast_t;
 				}
 			}
@@ -318,7 +321,7 @@ sgx_status_t TEE_initializeAccumulatorFast(Justifications_t *justifications_MsgN
 	accumulator_MsgLdrprepareFast_t->set = true;
 	accumulator_MsgLdrprepareFast_t->proposeView = proposeView_MsgNewviewFast;
 	accumulator_MsgLdrprepareFast_t->prepareHash = highHash_t;
-	accumulator_MsgLdrprepareFast_t->prepareView = highView;
+	accumulator_MsgLdrprepareFast_t->prepareView = highView_t;
 	accumulator_MsgLdrprepareFast_t->size = signers.size();
 
 	return status_t;
@@ -328,13 +331,13 @@ sgx_status_t TEE_respondProposalFast(Hash_t *proposeHash_t, Accumulator_t *accum
 {
 	sgx_status_t status_t = SGX_SUCCESS;
 
-	View proposeView_MsgLdrprepareFast = accumulator_MsgLdrprepareFast_t->proposeView;
+	View proposeView_MsgLdrprepareFast_t = accumulator_MsgLdrprepareFast_t->proposeView;
 	Hash_t prepareHash_MsgLdrprepareFast_t = accumulator_MsgLdrprepareFast_t->prepareHash;
-	View prepareView_MsgLdrprepareFast = accumulator_MsgLdrprepareFast_t->prepareView;
+	View prepareView_MsgLdrprepareFast_t = accumulator_MsgLdrprepareFast_t->prepareView;
 	unsigned int size_MsgLdrprepareFast = accumulator_MsgLdrprepareFast_t->size;
-	if (view_t == proposeView_MsgLdrprepareFast && size_MsgLdrprepareFast == getGeneralQuorumSize_t())
+	if (view_t == proposeView_MsgLdrprepareFast_t && size_MsgLdrprepareFast == getGeneralQuorumSize_t())
 	{
-		*justification_MsgPrepareFast_t = updateRoundDataFast_t(*proposeHash_t, prepareHash_MsgLdrprepareFast_t, prepareView_MsgLdrprepareFast);
+		*justification_MsgPrepareFast_t = updateRoundDataFast_t(*proposeHash_t, prepareHash_MsgLdrprepareFast_t, prepareView_MsgLdrprepareFast_t);
 	}
 	else
 	{
@@ -369,16 +372,7 @@ sgx_status_t TEE_saveMsgPrepareFast(Justification_t *justification_MsgPrepareFas
 	Phase phase_MsgPrepareFast_t = roundData_MsgPrepareFast_t.phase;
 	if (verifyJustification_t(justification_MsgPrepareFast_t) && justification_MsgPrepareFast_t->signs.size == getTrustedQuorumSize_t() && view_t == proposeView_MsgPrepareFast_t && phase_MsgPrepareFast_t == PHASE_PREPARE_FAST)
 	{
-		if (!isFail_MsgPrepareFast)
-		{
-			prepareHash_t = proposeHash_MsgPrepareFast_t;
-			prepareView_t = proposeView_MsgPrepareFast_t;
-			*justification_MsgPrecommitFast_t = updateRoundDataFast_t(proposeHash_MsgPrepareFast_t, initiateHash_t(), 0);
-		}
-		else
-		{
-			*justification_MsgPrecommitFast_t = updateRoundDataFast_t(proposeHash_MsgPrepareFast_t, initiateHash_t(), 0);
-		}
+		*justification_MsgPrecommitFast_t = updateRoundDataFast_t(proposeHash_MsgPrepareFast_t, initiateHash_t(), 0);
 	}
 	else
 	{
@@ -393,16 +387,34 @@ sgx_status_t TEE_saveMsgPrepareFast(Justification_t *justification_MsgPrepareFas
 }
 
 // Fast2common ResiBFT
+sgx_status_t TEE_initializeMsgNewviewFast2Common(Justification_t *justification_MsgNewviewFast_t, Justification_t *justification_MsgNewviewFast2Common_t)
+{
+	sgx_status_t status_t = SGX_SUCCESS;
+
+	RoundData_t roundData_t = justification_MsgNewviewFast_t->roundData;
+	roundData_t.justifyView = checkpoint_t.verifyView;
+	roundData_t.justifyHash = checkpoint_t.verifyHash;
+	Sign_t sign_t = signData_t(roundData2string_t(roundData_t));
+	Signs_t signs_t;
+	signs_t.size = 1;
+	signs_t.signs[0] = sign_t;
+	justification_MsgNewviewFast2Common_t->set = true;
+	justification_MsgNewviewFast2Common_t->roundData = roundData_t;
+	justification_MsgNewviewFast2Common_t->signs = signs_t;
+
+	return status_t;
+}
+
 sgx_status_t TEE_respondProposalFast2Common(Hash_t *proposeHash_t, Justification_t *justification_MsgNewviewFast_t, Justification_t *justification_MsgPrepareCommon_t)
 {
 	sgx_status_t status_t = SGX_SUCCESS;
 
 	RoundData_t roundData_MsgNewviewFast_t = justification_MsgNewviewFast_t->roundData;
-	View proposeView_MsgNewviewFast = roundData_MsgNewviewFast_t.proposeView;
+	View proposeView_MsgNewviewFast_t = roundData_MsgNewviewFast_t.proposeView;
 	Hash_t justifyHash_MsgNewviewFast_t = roundData_MsgNewviewFast_t.justifyHash;
 	View justifyView_MsgNewviewFast_t = roundData_MsgNewviewFast_t.justifyView;
 	Phase phase_MsgNewviewFast_t = roundData_MsgNewviewFast_t.phase;
-	if (verifyJustification_t(justification_MsgNewviewFast_t) && view_t == proposeView_MsgNewviewFast && phase_MsgNewviewFast_t == PHASE_NEWVIEW_FAST)
+	if (verifyJustification_t(justification_MsgNewviewFast_t) && view_t == proposeView_MsgNewviewFast_t && phase_MsgNewviewFast_t == PHASE_NEWVIEW_FAST)
 	{
 		*justification_MsgPrepareCommon_t = updateRoundDataCommon_t(*proposeHash_t, justifyHash_MsgNewviewFast_t, justifyView_MsgNewviewFast_t);
 	}
