@@ -137,8 +137,48 @@ Validation GeneralRep::checkBlock(Nodes nodes, Justification justification, bool
 	RoundData roundData = justification.getRoundData();
 	Hash proposeHash = roundData.getProposeHash();
 	View proposeView = roundData.getProposeView();
+
+	if (DEBUG_HELP)
+	{
+		std::cout << COLOUR_BLUE << this->replicaId << " : proposeView: " << proposeView << ", verifyView: " << this->checkpoint.getVerifyView() << COLOUR_NORMAL << std::endl;
+	}
+
+	if (DEBUG_HELP)
+	{
+		if (this->verifyJustification(nodes, justification))
+		{
+			std::cout << COLOUR_BLUE << this->replicaId << " Condition 1: true" << COLOUR_NORMAL << std::endl;
+		}
+		else
+		{
+			std::cout << COLOUR_BLUE << this->replicaId << " Condition 1: false" << COLOUR_NORMAL << std::endl;
+		}
+
+		if (proposeView >= this->checkpoint.getVerifyView())
+		{
+			std::cout << COLOUR_BLUE << this->replicaId << " Condition 2: true" << COLOUR_NORMAL << std::endl;
+		}
+		else
+		{
+			std::cout << COLOUR_BLUE << this->replicaId << " Condition 2: false" << COLOUR_NORMAL << std::endl;
+		}
+
+		if (!isFail)
+		{
+			std::cout << COLOUR_BLUE << this->replicaId << " Condition 3: true" << COLOUR_NORMAL << std::endl;
+		}
+		else
+		{
+			std::cout << COLOUR_BLUE << this->replicaId << " Condition 3: false" << COLOUR_NORMAL << std::endl;
+		}
+	}
+
 	if (this->verifyJustification(nodes, justification) && proposeView >= this->checkpoint.getVerifyView() && !isFail)
 	{
+		if (DEBUG_HELP)
+		{
+			std::cout << COLOUR_BLUE << this->replicaId << " Successful " << COLOUR_NORMAL << std::endl;
+		}
 		this->lockHash = proposeHash;
 		this->lockView = proposeView;
 		bool set_Validation = true;
@@ -148,6 +188,10 @@ Validation GeneralRep::checkBlock(Nodes nodes, Justification justification, bool
 	}
 	else
 	{
+		if (DEBUG_HELP)
+		{
+			std::cout << COLOUR_BLUE << this->replicaId << " Failed " << COLOUR_NORMAL << std::endl;
+		}
 		bool set_Validation = true;
 		bool verifier_Validation = false;
 		Validation validation = Validation(set_Validation, verifier_Validation);
