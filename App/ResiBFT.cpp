@@ -1147,7 +1147,6 @@ Validation ResiBFT::checkBlock(Justification justification, bool isFail)
 			validation = generalRep.checkBlock(this->nodes, justification, isFail);
 		}
 	}
-
 	return validation;
 }
 
@@ -1903,7 +1902,7 @@ void ResiBFT::handleEarlierMessagesFast()
 							this->initializeMsgNewviewCommon();
 
 							// Store [justification_MsgPrepareFast2Common]
-							this->respondMsgPrepareFast2Common(justification_MsgPrepareFast2Common, singer_MsgPrepareFast2Common);
+							this->respondMsgPrepareFast2Common(justification_MsgPrepareFast2Common, signer_MsgPrepareFast2Common);
 
 							// Fill the block and check the committee
 							Committee committee_MsgLdrprepareFast2Common = msgLdrprepareFast2Common.committee;
@@ -2510,7 +2509,7 @@ void ResiBFT::handleMsgValidationFast(MsgValidationFast msgValidationFast)
 				{
 					this->blocks[this->view] = block;
 					this->validations[this->view] = validations_MsgValidationFast;
-					bool isFail_MsgValidationFast = validations_MsgValidationFast.isAccepted();
+					bool isFail_MsgValidationFast = !validations_MsgValidationFast.isAccepted();
 
 					Validation validation_MsgValidationFast = this->checkBlock(justification_MsgValidationFast, isFail_MsgValidationFast);
 					if (DEBUG_HELP)
