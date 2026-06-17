@@ -181,7 +181,7 @@ sgx_status_t TEE_checkBlock(Justification_t *justification_t, bool *isFail, Vali
 			TEE_Print((printReplicaId_t() + " Condition 2: false").c_str());
 		}
 
-		if (!isFail)
+		if (!(*isFail))
 		{
 			TEE_Print((printReplicaId_t() + " Condition 3: true").c_str());
 		}
@@ -191,7 +191,7 @@ sgx_status_t TEE_checkBlock(Justification_t *justification_t, bool *isFail, Vali
 		}
 	}
 
-	if (verifyJustification_t(justification_t) && proposeView >= checkpoint_t.verifyView && !isFail)
+	if (verifyJustification_t(justification_t) && proposeView >= checkpoint_t.verifyView && !(*isFail))
 	{
 		validation_t->set = true;
 		validation_t->verifier = true;

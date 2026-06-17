@@ -2634,7 +2634,7 @@ void ResiBFT::handleMsgPrepareFast2Common(MsgPrepareFast2Common msgPrepareFast2C
 		{
 			if (this->path == FAST_PATH)
 			{
-				if (this->amCurrentLeader())
+				if (this->replicaId == singer_MsgPrepareFast2Common)
 				{
 					if (this->log.storeMsgPrepareFast2Common(msgPrepareFast2Common) == this->generalQuorumSize)
 					{
@@ -2693,7 +2693,7 @@ void ResiBFT::handleMsgPrecommitFast2Common(MsgPrecommitFast2Common msgPrecommit
 		{
 			if (this->path == FAST_PATH)
 			{
-				if (this->amCurrentLeader())
+				if (this->replicaId == singer_MsgPrepareFast2Common)
 				{
 					if (this->log.storeMsgPrecommitFast2Common(msgPrecommitFast2Common) == this->generalQuorumSize)
 					{
@@ -2751,7 +2751,7 @@ void ResiBFT::handleMsgCommitFast2Common(MsgCommitFast2Common msgCommitFast2Comm
 		{
 			if (this->path == FAST_PATH)
 			{
-				if (this->amCurrentLeader())
+				if (this->replicaId == singer_MsgPrepareFast2Common)
 				{
 					if (this->log.storeMsgCommitFast2Common(msgCommitFast2Common) == this->generalQuorumSize)
 					{
