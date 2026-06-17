@@ -1842,6 +1842,7 @@ void ResiBFT::handleEarlierMessagesFast()
 					MsgPrecommitFast2Common msgPrecommitFast2Common = this->log.firstMsgPrecommitFast2Common(this->view);
 					RoundData roundData_MsgPrecommitFast2Common = msgPrecommitFast2Common.roundData;
 					Signs signs_MsgPrecommitFast2Common = msgPrecommitFast2Common.signs;
+					ReplicaID singer_MsgPrecommitFast2Common = *(signs_MsgPrecommitFast2Common.getSigners().begin());
 					Justification justification_MsgPrecommitFast2Common = Justification(roundData_MsgPrecommitFast2Common, signs_MsgPrecommitFast2Common);
 					if (signs_MsgPrecommitFast2Common.getSize() == this->generalQuorumSize)
 					{
@@ -1873,7 +1874,7 @@ void ResiBFT::handleEarlierMessagesFast()
 						}
 
 						// Store [justification_MsgPrecommitFast2Common]
-						this->respondMsgPrecommitFast2Common(justification_MsgPrecommitFast2Common);
+						this->respondMsgPrecommitFast2Common(justification_MsgPrecommitFast2Common, singer_MsgPrecommitFast2Common);
 
 						MsgCommitFast2Common msgCommitFast2Common = this->log.firstMsgCommitFast2Common(this->view);
 						RoundData roundData_MsgCommitFast2Common = msgCommitFast2Common.roundData;
@@ -1889,7 +1890,7 @@ void ResiBFT::handleEarlierMessagesFast()
 						MsgPrepareFast2Common msgPrepareFast2Common = this->log.firstMsgPrepareFast2Common(this->view);
 						RoundData roundData_MsgPrepareFast2Common = msgPrepareFast2Common.roundData;
 						Signs signs_MsgPrepareFast2Common = msgPrepareFast2Common.signs;
-						ReplicaID singer_MsgPrepareFast2Common = signs_MsgPrepareFast2Common.getSigners()[0];
+						ReplicaID signer_MsgPrepareFast2Common = *(signs_MsgPrepareFast2Common.getSigners().begin());
 						Justification justification_MsgPrepareFast2Common = Justification(roundData_MsgPrepareFast2Common, signs_MsgPrepareFast2Common);
 						if (signs_MsgPrepareFast2Common.getSize() == this->generalQuorumSize)
 						{
@@ -1925,7 +1926,7 @@ void ResiBFT::handleEarlierMessagesFast()
 						else
 						{
 							Signs signs_MsgLdrprepareFast2Common = msgLdrprepareFast2Common.signs;
-							ReplicaID singer_MsgLdrprepareFast2Common = signs_MsgLdrprepareFast2Common.getSigners()[0];
+							ReplicaID singer_MsgLdrprepareFast2Common = *(signs_MsgLdrprepareFast2Common.getSigners().begin());
 
 							// Check if the proposal has been stored
 							if (signs_MsgLdrprepareFast2Common.getSize() == 1)
@@ -2570,7 +2571,7 @@ void ResiBFT::handleMsgLdrprepareFast2Common(MsgLdrprepareFast2Common MsgLdrprep
 	ProposalCommon proposalCommon_MsgLdrprepareFast2Common = MsgLdrprepareFast2Common.proposalCommon;
 	Committee committee_MsgLdrprepareFast2Common = MsgLdrprepareFast2Common.committee;
 	Signs signs_MsgLdrprepareFast2Common = MsgLdrprepareFast2Common.signs;
-	ReplicaID singer_MsgLdrprepareFast2Common = signs_MsgLdrprepareFast2Common.getSigners()[0];
+	ReplicaID singer_MsgLdrprepareFast2Common = *(signs_MsgLdrprepareFast2Common.getSigners().begin());
 	Justification justification_MsgNewviewFast = proposalCommon_MsgLdrprepareFast2Common.getJustification();
 	RoundData roundData_MsgNewviewFast = justification_MsgNewviewFast.getRoundData();
 	View proposeView_MsgNewviewFast = roundData_MsgNewviewFast.getProposeView();
@@ -2619,7 +2620,7 @@ void ResiBFT::handleMsgPrepareFast2Common(MsgPrepareFast2Common msgPrepareFast2C
 	}
 	RoundData roundData_MsgPrepareFast2Common = msgPrepareFast2Common.roundData;
 	Signs signs_MsgPrepareFast2Common = msgPrepareFast2Common.signs;
-	ReplicaID singer_MsgPrepareFast2Common = signs_MsgPrepareFast2Common.getSigners()[0];
+	ReplicaID singer_MsgPrepareFast2Common = *(signs_MsgPrepareFast2Common.getSigners().begin());
 	View proposeView_MsgPrepareFast2Common = roundData_MsgPrepareFast2Common.getProposeView();
 	Phase phase_MsgPrepareFast2Common = roundData_MsgPrepareFast2Common.getPhase();
 	Justification justification_MsgPrepareFast2Common = Justification(roundData_MsgPrepareFast2Common, signs_MsgPrepareFast2Common);
@@ -2639,7 +2640,7 @@ void ResiBFT::handleMsgPrepareFast2Common(MsgPrepareFast2Common msgPrepareFast2C
 				}
 				else
 				{
-					if (signs_MsgPrepare.getSize() == this->generalQuorumSize)
+					if (signs_MsgPrepareFast2Common.getSize() == this->generalQuorumSize)
 					{
 						this->respondMsgPrepareFast2Common(justification_MsgPrepareFast2Common, singer_MsgPrepareFast2Common);
 					}
@@ -2678,7 +2679,7 @@ void ResiBFT::handleMsgPrecommitFast2Common(MsgPrecommitFast2Common msgPrecommit
 	}
 	RoundData roundData_MsgPrecommitFast2Common = msgPrecommitFast2Common.roundData;
 	Signs signs_MsgPrecommitFast2Common = msgPrecommitFast2Common.signs;
-	ReplicaID singer_MsgPrecommitFast2Common = signs_MsgPrecommitFast2Common.getSigners()[0];
+	ReplicaID singer_MsgPrecommitFast2Common = *(signs_MsgPrecommitFast2Common.getSigners().begin());
 	View proposeView_MsgPrecommitFast2Common = roundData_MsgPrecommitFast2Common.getProposeView();
 	Phase phase_MsgPrecommitFast2Common = roundData_MsgPrecommitFast2Common.getPhase();
 	Justification justification_MsgPrecommitFast2Common = Justification(roundData_MsgPrecommitFast2Common, signs_MsgPrecommitFast2Common);
