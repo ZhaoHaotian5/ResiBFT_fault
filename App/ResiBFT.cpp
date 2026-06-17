@@ -1889,6 +1889,7 @@ void ResiBFT::handleEarlierMessagesFast()
 						MsgPrepareFast2Common msgPrepareFast2Common = this->log.firstMsgPrepareFast2Common(this->view);
 						RoundData roundData_MsgPrepareFast2Common = msgPrepareFast2Common.roundData;
 						Signs signs_MsgPrepareFast2Common = msgPrepareFast2Common.signs;
+						ReplicaID singer_MsgPrepareFast2Common = signs_MsgPrepareFast2Common.getSigners()[0];
 						Justification justification_MsgPrepareFast2Common = Justification(roundData_MsgPrepareFast2Common, signs_MsgPrepareFast2Common);
 						if (signs_MsgPrepareFast2Common.getSize() == this->generalQuorumSize)
 						{
@@ -1901,7 +1902,7 @@ void ResiBFT::handleEarlierMessagesFast()
 							this->initializeMsgNewviewCommon();
 
 							// Store [justification_MsgPrepareFast2Common]
-							this->respondMsgPrepareFast2Common(justification_MsgPrepareFast2Common);
+							this->respondMsgPrepareFast2Common(justification_MsgPrepareFast2Common, singer_MsgPrepareFast2Common);
 
 							// Fill the block and check the committee
 							Committee committee_MsgLdrprepareFast2Common = msgLdrprepareFast2Common.committee;
@@ -1924,6 +1925,7 @@ void ResiBFT::handleEarlierMessagesFast()
 						else
 						{
 							Signs signs_MsgLdrprepareFast2Common = msgLdrprepareFast2Common.signs;
+							ReplicaID singer_MsgLdrprepareFast2Common = signs_MsgLdrprepareFast2Common.getSigners()[0];
 
 							// Check if the proposal has been stored
 							if (signs_MsgLdrprepareFast2Common.getSize() == 1)
@@ -1939,7 +1941,7 @@ void ResiBFT::handleEarlierMessagesFast()
 								{
 									this->committee = committee_MsgLdrprepareFast2Common;
 								}
-								this->respondMsgLdrprepareFast2Common(justification_MsgLdrprepareFast2Common, committee_MsgLdrprepareFast2Common, block);
+								this->respondMsgLdrprepareFast2Common(justification_MsgLdrprepareFast2Common, committee_MsgLdrprepareFast2Common, block, singer_MsgLdrprepareFast2Common);
 							}
 						}
 					}
@@ -2568,6 +2570,7 @@ void ResiBFT::handleMsgLdrprepareFast2Common(MsgLdrprepareFast2Common MsgLdrprep
 	ProposalCommon proposalCommon_MsgLdrprepareFast2Common = MsgLdrprepareFast2Common.proposalCommon;
 	Committee committee_MsgLdrprepareFast2Common = MsgLdrprepareFast2Common.committee;
 	Signs signs_MsgLdrprepareFast2Common = MsgLdrprepareFast2Common.signs;
+	ReplicaID singer_MsgLdrprepareFast2Common = signs_MsgLdrprepareFast2Common.getSigners()[0];
 	Justification justification_MsgNewviewFast = proposalCommon_MsgLdrprepareFast2Common.getJustification();
 	RoundData roundData_MsgNewviewFast = justification_MsgNewviewFast.getRoundData();
 	View proposeView_MsgNewviewFast = roundData_MsgNewviewFast.getProposeView();
@@ -2581,7 +2584,7 @@ void ResiBFT::handleMsgLdrprepareFast2Common(MsgLdrprepareFast2Common MsgLdrprep
 		{
 			if (this->path == FAST_PATH)
 			{
-				this->respondMsgLdrprepareFast2Common(justification_MsgNewviewFast, committee_MsgLdrprepareFast2Common, block);
+				this->respondMsgLdrprepareFast2Common(justification_MsgNewviewFast, committee_MsgLdrprepareFast2Common, block, singer_MsgLdrprepareFast2Common);
 			}
 			else
 			{
@@ -2615,10 +2618,11 @@ void ResiBFT::handleMsgPrepareFast2Common(MsgPrepareFast2Common msgPrepareFast2C
 		std::cout << COLOUR_BLUE << this->printReplicaId() << "Handling MsgPrepare for fast path to common path: " << msgPrepareFast2Common.toPrint() << COLOUR_NORMAL << std::endl;
 	}
 	RoundData roundData_MsgPrepareFast2Common = msgPrepareFast2Common.roundData;
-	Signs signs_MsgPrepare = msgPrepareFast2Common.signs;
+	Signs signs_MsgPrepareFast2Common = msgPrepareFast2Common.signs;
+	ReplicaID singer_MsgPrepareFast2Common = signs_MsgPrepareFast2Common.getSigners()[0];
 	View proposeView_MsgPrepareFast2Common = roundData_MsgPrepareFast2Common.getProposeView();
 	Phase phase_MsgPrepareFast2Common = roundData_MsgPrepareFast2Common.getPhase();
-	Justification justification_MsgPrepareFast2Common = Justification(roundData_MsgPrepareFast2Common, signs_MsgPrepare);
+	Justification justification_MsgPrepareFast2Common = Justification(roundData_MsgPrepareFast2Common, signs_MsgPrepareFast2Common);
 
 	if (proposeView_MsgPrepareFast2Common >= this->view && phase_MsgPrepareFast2Common == PHASE_PREPARE_COMMON)
 	{
@@ -2637,7 +2641,7 @@ void ResiBFT::handleMsgPrepareFast2Common(MsgPrepareFast2Common msgPrepareFast2C
 				{
 					if (signs_MsgPrepare.getSize() == this->generalQuorumSize)
 					{
-						this->respondMsgPrepareFast2Common(justification_MsgPrepareFast2Common);
+						this->respondMsgPrepareFast2Common(justification_MsgPrepareFast2Common, singer_MsgPrepareFast2Common);
 					}
 				}
 			}
@@ -2674,6 +2678,7 @@ void ResiBFT::handleMsgPrecommitFast2Common(MsgPrecommitFast2Common msgPrecommit
 	}
 	RoundData roundData_MsgPrecommitFast2Common = msgPrecommitFast2Common.roundData;
 	Signs signs_MsgPrecommitFast2Common = msgPrecommitFast2Common.signs;
+	ReplicaID singer_MsgPrecommitFast2Common = signs_MsgPrecommitFast2Common.getSigners()[0];
 	View proposeView_MsgPrecommitFast2Common = roundData_MsgPrecommitFast2Common.getProposeView();
 	Phase phase_MsgPrecommitFast2Common = roundData_MsgPrecommitFast2Common.getPhase();
 	Justification justification_MsgPrecommitFast2Common = Justification(roundData_MsgPrecommitFast2Common, signs_MsgPrecommitFast2Common);
@@ -2695,7 +2700,7 @@ void ResiBFT::handleMsgPrecommitFast2Common(MsgPrecommitFast2Common msgPrecommit
 				{
 					if (signs_MsgPrecommitFast2Common.getSize() == this->generalQuorumSize)
 					{
-						this->respondMsgPrecommitFast2Common(justification_MsgPrecommitFast2Common);
+						this->respondMsgPrecommitFast2Common(justification_MsgPrecommitFast2Common, singer_MsgPrecommitFast2Common);
 					}
 				}
 			}
@@ -3590,7 +3595,7 @@ void ResiBFT::respondMsgPrepareFast(Justification justification_MsgPrepareFast, 
 }
 
 // Respond messages
-void ResiBFT::respondMsgLdrprepareFast2Common(Justification justification_MsgNewviewFast, Committee committee_MsgLdrprepareFast2Common, Block block)
+void ResiBFT::respondMsgLdrprepareFast2Common(Justification justification_MsgNewviewFast, Committee committee_MsgLdrprepareFast2Common, Block block, ReplicaID singer_MsgLdrprepareFast2Common)
 {
 	// Update own [committee_MsgLdrprepareFast2Common]
 	if (committee_MsgLdrprepareFast2Common.isSet())
@@ -3618,7 +3623,7 @@ void ResiBFT::respondMsgLdrprepareFast2Common(Justification justification_MsgNew
 		MsgPrepareFast2Common msgPrepareFast2Common = MsgPrepareFast2Common(roundData_MsgPrepareFast2Common, signs_MsgPrepareFast2Common);
 
 		// Send [msgPrepareFast2Common] to leader
-		Peers recipients = this->keepFromPeers(this->getCurrentLeader());
+		Peers recipients = this->keepFromPeers(singer_MsgLdrprepareFast2Common);
 		this->sendMsgPrepareFast2Common(msgPrepareFast2Common, recipients);
 		if (DEBUG_HELP)
 		{
@@ -3627,7 +3632,7 @@ void ResiBFT::respondMsgLdrprepareFast2Common(Justification justification_MsgNew
 	}
 }
 
-void ResiBFT::respondMsgPrepareFast2Common(Justification justification_MsgPrepareFast2Common)
+void ResiBFT::respondMsgPrepareFast2Common(Justification justification_MsgPrepareFast2Common, ReplicaID singer_MsgPrepareFast2Common)
 {
 	// Create [justification_MsgPrecommitFast2Common]
 	Justification justification_MsgPrecommitFast2Common = this->saveMsgPrepareFast2Common(justification_MsgPrepareFast2Common);
@@ -3638,7 +3643,7 @@ void ResiBFT::respondMsgPrepareFast2Common(Justification justification_MsgPrepar
 	MsgPrecommitFast2Common msgPrecommitFast2Common = MsgPrecommitFast2Common(roundData_MsgPrecommitFast2Common, signs_MsgPrecommitFast2Common);
 
 	// Send [msgPrecommitFast2Common] to leader
-	Peers recipients = this->keepFromPeers(this->getCurrentLeader());
+	Peers recipients = this->keepFromPeers(singer_MsgPrepareFast2Common);
 	this->sendMsgPrecommitFast2Common(msgPrecommitFast2Common, recipients);
 	if (DEBUG_HELP)
 	{
@@ -3646,7 +3651,7 @@ void ResiBFT::respondMsgPrepareFast2Common(Justification justification_MsgPrepar
 	}
 }
 
-void ResiBFT::respondMsgPrecommitFast2Common(Justification justification_MsgPrecommitFast2Common)
+void ResiBFT::respondMsgPrecommitFast2Common(Justification justification_MsgPrecommitFast2Common, ReplicaID singer_MsgPrecommitFast2Common)
 {
 	// Create [justification_MsgCommitFast2Common]
 	Justification justification_MsgCommitFast2Common = this->lockMsgPrecommitFast2Common(justification_MsgPrecommitFast2Common);
@@ -3657,7 +3662,7 @@ void ResiBFT::respondMsgPrecommitFast2Common(Justification justification_MsgPrec
 	MsgCommitFast2Common msgCommitFast2Common = MsgCommitFast2Common(roundData_MsgCommitFast2Common, signs_MsgCommitFast2Common);
 
 	// Send [msgCommitFast2Common] to leader
-	Peers recipients = this->keepFromPeers(this->getCurrentLeader());
+	Peers recipients = this->keepFromPeers(singer_MsgPrecommitFast2Common);
 	this->sendMsgCommitFast2Common(msgCommitFast2Common, recipients);
 	if (DEBUG_HELP)
 	{

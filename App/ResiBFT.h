@@ -256,9 +256,9 @@ private:
 	void respondMsgLdrprepareFast(Accumulator accumulator_MsgLdrprepareFast, Validations validations_MsgLdrprepareFast, Block block); // Replicas respond to [msgLdrprepareFast] and send [msgPrepareFast] to the leader
 	void respondMsgPrepareFast(Justification justification_MsgPrepareFast, bool isFail_MsgPrepareFast);								  // Replicas respond to [msgPrepareFast] and send [msgPrecommitFast] to the leader
 
-	void respondMsgLdrprepareFast2Common(Justification justification_MsgNewviewFast2Common, Committee committee_MsgLdrprepareFast2Common, Block block); // Replicas respond to [msgLdrprepareFast2Common] and send [msgPrepareFast2Common] to the leader
-	void respondMsgPrepareFast2Common(Justification justification_MsgPrepare);																			// Replicas respond to [msgPrepareFast2Common] and send [msgPrecommitFast2Common] to the leader
-	void respondMsgPrecommitFast2Common(Justification justification_MsgPrecommitFast2Common);															// Replicas respond to [msgPrecommitFast2Common] and send [msgCommitFast2Common] to the leader
+	void respondMsgLdrprepareFast2Common(Justification justification_MsgNewviewFast2Common, Committee committee_MsgLdrprepareFast2Common, Block block, ReplicaID singer_MsgLdrprepareFast2Common); // Replicas respond to [msgLdrprepareFast2Common] and send [msgPrepareFast2Common] to the leader
+	void respondMsgPrepareFast2Common(Justification justification_MsgPrepareFast2Common, ReplicaID singer_MsgPrepareFast2Common);																   // Replicas respond to [msgPrepareFast2Common] and send [msgPrecommitFast2Common] to the leader
+	void respondMsgPrecommitFast2Common(Justification justification_MsgPrecommitFast2Common, ReplicaID singer_MsgPrecommitFast2Common);															   // Replicas respond to [msgPrecommitFast2Common] and send [msgCommitFast2Common] to the leader
 
 	// Main functions
 	int initializeSGX();
