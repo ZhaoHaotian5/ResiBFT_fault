@@ -932,6 +932,10 @@ Justification ResiBFT::saveMsgPrepareFast(Justification justification_MsgPrepare
 
 Justification ResiBFT::respondProposalFast2Common(Hash proposeHash, Justification justification_MsgNewviewFast)
 {
+	if (DEBUG_HELP)
+	{
+		std::cout << COLOUR_BLUE << this->printReplicaId() << "respondProposalFast2Common started " << this->view << COLOUR_NORMAL << std::endl;
+	}
 	Justification justification_MsgPrepareCommon = Justification();
 	if (this->amTrustedReplicaIds())
 	{
@@ -947,7 +951,15 @@ Justification ResiBFT::respondProposalFast2Common(Hash proposeHash, Justificatio
 	}
 	else
 	{
+		if (DEBUG_HELP)
+		{
+			std::cout << COLOUR_BLUE << this->printReplicaId() << "General respondProposalFast2Common started " << this->view << COLOUR_NORMAL << std::endl;
+		}
 		justification_MsgPrepareCommon = generalRep.respondProposalFast2Common(this->nodes, proposeHash, justification_MsgNewviewFast);
+		if (DEBUG_HELP)
+		{
+			std::cout << COLOUR_BLUE << this->printReplicaId() << "General respondProposalFast2Common ended " << this->view << COLOUR_NORMAL << std::endl;
+		}
 	}
 	return justification_MsgPrepareCommon;
 }
@@ -3613,6 +3625,10 @@ void ResiBFT::respondMsgLdrprepareFast2Common(Justification justification_MsgNew
 
 	// Create own [justification_MsgPrepareFast2Common] for that [block]
 	Justification justification_MsgPrepareFast2Common = this->respondProposalFast2Common(block.hash(), justification_MsgNewviewFast);
+	if (DEBUG_HELP)
+	{
+		std::cout << COLOUR_BLUE << this->printReplicaId() << "justification_MsgPrepareFast2Common " << this->view << ": " << justification_MsgPrepareFast2Common.toPrint() << COLOUR_NORMAL << std::endl;
+	}
 	if (justification_MsgPrepareFast2Common.isSet())
 	{
 		if (DEBUG_HELP)

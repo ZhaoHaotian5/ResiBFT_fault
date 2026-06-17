@@ -138,41 +138,6 @@ Validation GeneralRep::checkBlock(Nodes nodes, Justification justification, bool
 	Hash proposeHash = roundData.getProposeHash();
 	View proposeView = roundData.getProposeView();
 
-	if (DEBUG_HELP)
-	{
-		std::cout << COLOUR_BLUE << this->replicaId << " : proposeView: " << proposeView << ", verifyView: " << this->checkpoint.getVerifyView() << COLOUR_NORMAL << std::endl;
-	}
-
-	if (DEBUG_HELP)
-	{
-		if (this->verifyJustification(nodes, justification))
-		{
-			std::cout << COLOUR_BLUE << this->replicaId << " Condition 1: true" << COLOUR_NORMAL << std::endl;
-		}
-		else
-		{
-			std::cout << COLOUR_BLUE << this->replicaId << " Condition 1: false" << COLOUR_NORMAL << std::endl;
-		}
-
-		if (proposeView >= this->checkpoint.getVerifyView())
-		{
-			std::cout << COLOUR_BLUE << this->replicaId << " Condition 2: true" << COLOUR_NORMAL << std::endl;
-		}
-		else
-		{
-			std::cout << COLOUR_BLUE << this->replicaId << " Condition 2: false" << COLOUR_NORMAL << std::endl;
-		}
-
-		if (!isFail)
-		{
-			std::cout << COLOUR_BLUE << this->replicaId << " Condition 3: true" << COLOUR_NORMAL << std::endl;
-		}
-		else
-		{
-			std::cout << COLOUR_BLUE << this->replicaId << " Condition 3: false" << COLOUR_NORMAL << std::endl;
-		}
-	}
-
 	if (this->verifyJustification(nodes, justification) && proposeView >= this->checkpoint.getVerifyView() && !isFail)
 	{
 		if (DEBUG_HELP)
@@ -297,11 +262,55 @@ Justification GeneralRep::initializeMsgNewviewFast()
 // Fast2common ResiBFT
 Justification GeneralRep::respondProposalFast2Common(Nodes nodes, Hash proposeHash, Justification justification_MsgNewviewFast)
 {
+	if (DEBUG_HELP)
+	{
+		std::cout << COLOUR_BLUE << this->printReplicaId() << "General respondProposalFast2Common started in modules " << this->view << COLOUR_NORMAL << std::endl;
+	}
 	RoundData roundData_MsgNewviewFast = justification_MsgNewviewFast.getRoundData();
 	View proposeView_MsgNewviewFast = roundData_MsgNewviewFast.getProposeView();
 	Hash justifyHash_MsgNewviewFast = roundData_MsgNewviewFast.getJustifyHash();
 	View justifyView_MsgNewviewFast = roundData_MsgNewviewFast.getJustifyView();
 	Phase phase_MsgNewviewFast = roundData_MsgNewviewFast.getPhase();
+
+	if (DEBUG_HELP)
+	{
+		if (this->verifyJustification(nodes, justification_MsgNewviewFast))
+		{
+			std::cout << COLOUR_BLUE << this->replicaId << " Condition 1 true" << COLOUR_NORMAL << std::endl;
+		}
+		else
+		{
+			std::cout << COLOUR_BLUE << this->replicaId << " Condition 1 false" << COLOUR_NORMAL << std::endl;
+		}
+
+		if (this->view == proposeView_MsgNewviewFast)
+		{
+			std::cout << COLOUR_BLUE << this->replicaId << " Condition 2 true" << COLOUR_NORMAL << std::endl;
+		}
+		else
+		{
+			std::cout << COLOUR_BLUE << this->replicaId << " Condition 2 false" << COLOUR_NORMAL << std::endl;
+		}
+
+		if (phase_MsgNewviewFast == PHASE_NEWVIEW_FAST)
+		{
+			std::cout << COLOUR_BLUE << this->replicaId << " Condition 3 true" << COLOUR_NORMAL << std::endl;
+		}
+		else
+		{
+			std::cout << COLOUR_BLUE << this->replicaId << " Condition 3 false" << COLOUR_NORMAL << std::endl;
+		}
+
+		if ((this->lockHash == justifyHash_MsgNewviewFast || this->lockView < justifyView_MsgNewviewFast))
+		{
+			std::cout << COLOUR_BLUE << this->replicaId << " Condition 4 true" << COLOUR_NORMAL << std::endl;
+		}
+		else
+		{
+			std::cout << COLOUR_BLUE << this->replicaId << " Condition 4 false" << COLOUR_NORMAL << std::endl;
+		}
+	}
+
 	if (this->verifyJustification(nodes, justification_MsgNewviewFast) && this->view == proposeView_MsgNewviewFast && phase_MsgNewviewFast == PHASE_NEWVIEW_FAST && (this->lockHash == justifyHash_MsgNewviewFast || this->lockView < justifyView_MsgNewviewFast))
 	{
 		Justification justification_MsgPrepareCommon = this->updateRoundDataCommon(proposeHash, justifyHash_MsgNewviewFast, justifyView_MsgNewviewFast);

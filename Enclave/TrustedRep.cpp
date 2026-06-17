@@ -160,37 +160,6 @@ sgx_status_t TEE_checkBlock(Justification_t *justification_t, bool *isFail, Vali
 	RoundData_t roundData_t = justification_t->roundData;
 	View proposeView = roundData_t.proposeView;
 
-	if (DEBUG_HELP)
-	{
-		TEE_Print((printReplicaId_t() + " proposeView: " + std::to_string(proposeView) + " verifyView: " + std::to_string(checkpoint_t.verifyView)).c_str());
-		if (verifyJustification_t(justification_t))
-		{
-			TEE_Print((printReplicaId_t() + " Condition 1: true").c_str());
-		}
-		else
-		{
-			TEE_Print((printReplicaId_t() + " Condition 1: false").c_str());
-		}
-
-		if (proposeView >= checkpoint_t.verifyView)
-		{
-			TEE_Print((printReplicaId_t() + " Condition 2: true").c_str());
-		}
-		else
-		{
-			TEE_Print((printReplicaId_t() + " Condition 2: false").c_str());
-		}
-
-		if (!(*isFail))
-		{
-			TEE_Print((printReplicaId_t() + " Condition 3: true").c_str());
-		}
-		else
-		{
-			TEE_Print((printReplicaId_t() + " Condition 3: false").c_str());
-		}
-	}
-
 	if (verifyJustification_t(justification_t) && proposeView >= checkpoint_t.verifyView && !(*isFail))
 	{
 		validation_t->set = true;
