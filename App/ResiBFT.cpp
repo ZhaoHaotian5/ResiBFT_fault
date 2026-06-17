@@ -3574,7 +3574,7 @@ void ResiBFT::respondMsgPrepareFast(Justification justification_MsgPrepareFast, 
 	RoundData roundData_MsgPrecommitFast = justification_MsgPrecommitFast.getRoundData();
 	Signs signs_MsgPrecommitFast = justification_MsgPrecommitFast.getSigns();
 	MsgPrecommitFast msgPrecommitFast = MsgPrecommitFast(roundData_MsgPrecommitFast, signs_MsgPrecommitFast);
-	if (!this->amTrustfailReplicaIds() || isFail_MsgPrepareFast)
+	if (this->amTrustfailReplicaIds() || isFail_MsgPrepareFast)
 	{
 		bool isFail_MsgPrecommitFast = true;
 		msgPrecommitFast = MsgPrecommitFast(isFail_MsgPrecommitFast, roundData_MsgPrecommitFast, signs_MsgPrecommitFast);
