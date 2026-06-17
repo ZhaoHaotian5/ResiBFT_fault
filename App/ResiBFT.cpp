@@ -1788,15 +1788,17 @@ void ResiBFT::handleEarlierMessagesFast()
 			MsgValidationFast msgValidationFast = this->log.firstMsgValidationFast(this->view);
 			RoundData roundData_MsgValidationFast = msgValidationFast.roundData;
 			View proposeView_MsgValidationFast = roundData_MsgValidationFast.getProposeView();
-			if (proposeView_MsgLdrprepareFast == this->view)
+			if (proposeView_MsgValidationFast == this->view)
 			{
 				if (DEBUG_HELP)
 				{
 					std::cout << COLOUR_BLUE << this->printReplicaId() << "Catching up using MsgValidation certificate in fast path" << COLOUR_NORMAL << std::endl;
 				}
 
+				Validations validations_MsgValidationFast = msgValidationFast.validations;
 				Signs signs_MsgValidationFast = msgValidationFast.signs;
 				Phase phase_MsgValidationFast = roundData_MsgValidationFast.getPhase();
+				Block block = msgValidationFast.block;
 				Justification justification_MsgValidationFast = Justification(roundData_MsgValidationFast, signs_MsgValidationFast);
 
 				if (signs_MsgValidationFast.getSize() == this->trustedQuorumSize && this->verifyJustification(justification_MsgValidationFast))
