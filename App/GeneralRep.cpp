@@ -177,7 +177,7 @@ Validation GeneralRep::checkBlock(Nodes nodes, Justification justification, bool
 	{
 		if (DEBUG_HELP)
 		{
-			std::cout << COLOUR_BLUE << this->replicaId << " Successful " << COLOUR_NORMAL << std::endl;
+			std::cout << COLOUR_CYAN << this->replicaId << " check block successfully" << COLOUR_NORMAL << std::endl;
 		}
 		this->lockHash = proposeHash;
 		this->lockView = proposeView;
@@ -190,7 +190,7 @@ Validation GeneralRep::checkBlock(Nodes nodes, Justification justification, bool
 	{
 		if (DEBUG_HELP)
 		{
-			std::cout << COLOUR_BLUE << this->replicaId << " Failed " << COLOUR_NORMAL << std::endl;
+			std::cout << COLOUR_CYAN << this->replicaId << " failed to check block" << COLOUR_NORMAL << std::endl;
 		}
 		bool set_Validation = true;
 		bool verifier_Validation = false;

@@ -2439,10 +2439,6 @@ void ResiBFT::handleMsgPrecommitFast(MsgPrecommitFast msgPrecommitFast)
 					if (signs_MsgPrecommitFast.getSize() == this->trustedQuorumSize && !isFail_MsgPrecommitFast)
 					{
 						validation_MsgPrecommitFast = this->checkBlock(justification_MsgPrecommit, isFail_MsgPrecommitFast);
-						if (DEBUG_HELP)
-						{
-							std::cout << COLOUR_BLUE << this->printReplicaId() << "Checking MsgPrecommit in fast path: " << validation_MsgPrecommitFast.toPrint() << COLOUR_NORMAL << std::endl;
-						}
 
 						if (validation_MsgPrecommitFast.isAccepted())
 						{
@@ -2456,6 +2452,10 @@ void ResiBFT::handleMsgPrecommitFast(MsgPrecommitFast msgPrecommitFast)
 					else
 					{
 						validation_MsgPrecommitFast = this->checkBlock(justification_MsgPrecommit, isFail_MsgPrecommitFast);
+					}
+					if (DEBUG_HELP)
+					{
+						std::cout << COLOUR_BLUE << this->printReplicaId() << "Checking MsgPrecommit in fast path: " << validation_MsgPrecommitFast.toPrint() << COLOUR_NORMAL << std::endl;
 					}
 					this->executeBlockFast(roundData_MsgPrecommitFast, validation_MsgPrecommitFast);
 				}
@@ -2510,6 +2510,10 @@ void ResiBFT::handleMsgValidationFast(MsgValidationFast msgValidationFast)
 					this->blocks[this->view] = block;
 					this->validations[this->view] = validations_MsgValidationFast;
 					bool isFail_MsgValidationFast = !validations_MsgValidationFast.isAccepted();
+					if (DEBUG_HELP)
+					{
+						std::cout << COLOUR_BLUE << this->printReplicaId() << "Yes or No: " << isFail_MsgValidationFast << COLOUR_NORMAL << std::endl;
+					}
 
 					Validation validation_MsgValidationFast = this->checkBlock(justification_MsgValidationFast, isFail_MsgValidationFast);
 					if (DEBUG_HELP)
