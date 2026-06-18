@@ -2475,7 +2475,7 @@ void ResiBFT::handleMsgPrecommitFast(MsgPrecommitFast msgPrecommitFast)
 						validation_MsgPrecommitFast = Validation(validation_MsgPrecommitFast.isSet(), !validation_MsgPrecommitFast.isAccepted());
 						if (DEBUG_HELP)
 						{
-							std::cout << COLOUR_BLUE << this->printReplicaId() << "Fail replica modifies the check result in fast path: " << validation_MsgValidationFast.toPrint() << COLOUR_NORMAL << std::endl;
+							std::cout << COLOUR_BLUE << this->printReplicaId() << "Fail replica modifies the check result in fast path: " << validation_MsgPrecommitFast.toPrint() << COLOUR_NORMAL << std::endl;
 						}
 					}
 
@@ -3328,7 +3328,7 @@ void ResiBFT::initiateMsgPrecommitFast(RoundData roundData_MsgPrecommitFast)
 			validation_MsgPrecommitFast = Validation(validation_MsgPrecommitFast.isSet(), !validation_MsgPrecommitFast.isAccepted());
 			if (DEBUG_HELP)
 			{
-				std::cout << COLOUR_BLUE << this->printReplicaId() << "Fail replica modifies the check result in fast path: " << validation_MsgValidationFast.toPrint() << COLOUR_NORMAL << std::endl;
+				std::cout << COLOUR_BLUE << this->printReplicaId() << "Fail replica modifies the check result in fast path: " << validation_MsgPrecommitFast.toPrint() << COLOUR_NORMAL << std::endl;
 			}
 		}
 

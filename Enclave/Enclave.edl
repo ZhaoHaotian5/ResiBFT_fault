@@ -33,7 +33,7 @@ enclave
         public sgx_status_t TEE_initializeMsgLdrprepareFast([in] ProposalFast_t *proposalFast_MsgLdrprepareFast_t, [out] Signs_t *signs_MsgLdrprepareFast_t);
         public sgx_status_t TEE_saveMsgPrepareFast([in] Justification_t *justification_MsgPrepareFast_t, [in] bool *isFail_MsgPrepareFast, [out] Justification_t *justification_MsgPrecommitFast_t);
 
-		public sgx_status_t TEE_initializeMsgNewviewFast2Common(Justification_t *justification_MsgNewviewFast_t, Justification_t *justification_MsgNewviewFast2Common_t)
+		public sgx_status_t TEE_initializeMsgNewviewFast2Common(Justification_t *justification_MsgNewviewFast_t, Justification_t *justification_MsgNewviewFast2Common_t);
 		public sgx_status_t TEE_respondProposalFast2Common([in] Hash_t *proposeHash_t, [in] Justification_t *justification_MsgNewviewFast_t, [out] Justification_t *justification_MsgPrepareCommon_t);
 		public sgx_status_t TEE_initializeMsgLdrprepareFast2Common([in] ProposalCommon_t *proposalCommon_MsgLdrprepareFast2Common_t, [out] Signs_t *signs_MsgLdrprepareFast2Common_t);
 		public sgx_status_t TEE_saveMsgPrepareFast2Common([in] Justification_t *justification_MsgPrepareFast2Common_t, [out] Justification_t *justification_MsgPrecommitFast2Common_t);
