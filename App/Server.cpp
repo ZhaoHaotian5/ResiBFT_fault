@@ -96,6 +96,7 @@ int main(int argc, char const *argv[])
 		std::cout << COLOUR_RED << printReplicaId() << "Invalid general records size. Expected " << numGeneralReplicas << ", but got " << generalRecords.size() << COLOUR_NORMAL << std::endl;
 	}
 
+	trustedRecords.clear();
 	if (argc > 4)
 	{
 		sscanf(argv[4], "%d", &numTrustedReplicas);
@@ -135,6 +136,7 @@ int main(int argc, char const *argv[])
 		std::cout << COLOUR_RED << printReplicaId() << "Invalid trusted records size. Expected " << numTrustedReplicas << ", but got " << trustedRecords.size() << COLOUR_NORMAL << std::endl;
 	}
 
+	trustfailRecords.clear();
 	if (argc > 6)
 	{
 		sscanf(argv[6], "%d", &numTrustfailReplicas);

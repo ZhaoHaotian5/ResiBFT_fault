@@ -11,10 +11,11 @@
 #include "../App/key.h"
 #include "../App/types.h"
 
+Quorum getAllQuorumSize_t();
 Quorum getGeneralQuorumSize_t();
 Quorum getTrustedQuorumSize_t();
 std::string printReplicaId_t();
-sgx_status_t TEE_initializeVariables(ReplicaID *me, Pids_t *others, unsigned int *GeneralQuorumSize, unsigned int *TrustedQuorumSize);
+sgx_status_t TEE_initializeVariables(ReplicaID *me, Pids_t *others, unsigned int *AllQuorumSize, unsigned int *GeneralQuorumSize, unsigned int *TrustedQuorumSize);
 
 std::string transaction2string_t(Transaction_t transaction_t);
 std::string hash2string_t(Hash_t hash_t);

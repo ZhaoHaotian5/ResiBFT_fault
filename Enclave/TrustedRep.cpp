@@ -296,7 +296,7 @@ sgx_status_t TEE_initializeAccumulatorFast(Justifications_t *justifications_MsgN
 	Hash_t highHash_t = initiateHash_t();
 	std::set<ReplicaID> signers;
 
-	for (int i = 0; i < NUM_ACTIVE_REPLICAS; i++)
+	for (int i = 0; i < NUM_REPLICAS; i++)
 	{
 		Justification_t justification_MsgNewviewFast_t = justifications_MsgNewviewFast_t->justifications[i];
 		RoundData_t roundData_MsgNewviewFast_t = justification_MsgNewviewFast_t.roundData;
@@ -335,7 +335,7 @@ sgx_status_t TEE_respondProposalFast(Hash_t *proposeHash_t, Accumulator_t *accum
 	Hash_t prepareHash_MsgLdrprepareFast_t = accumulator_MsgLdrprepareFast_t->prepareHash;
 	View prepareView_MsgLdrprepareFast_t = accumulator_MsgLdrprepareFast_t->prepareView;
 	unsigned int size_MsgLdrprepareFast = accumulator_MsgLdrprepareFast_t->size;
-	if (view_t == proposeView_MsgLdrprepareFast_t && size_MsgLdrprepareFast == getGeneralQuorumSize_t())
+	if (view_t == proposeView_MsgLdrprepareFast_t && size_MsgLdrprepareFast == getAllQuorumSize_t())
 	{
 		*justification_MsgPrepareFast_t = updateRoundDataFast_t(*proposeHash_t, prepareHash_MsgLdrprepareFast_t, prepareView_MsgLdrprepareFast_t);
 	}

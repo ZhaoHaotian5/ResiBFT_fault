@@ -877,7 +877,7 @@ Justification ResiBFT::initializeMsgNewviewFast()
 	return justification_MsgNewviewFast;
 }
 
-Accumulator ResiBFT::initializeAccumulatorFast(Justification justifications_MsgNewviewFast[NUM_ACTIVE_REPLICAS])
+Accumulator ResiBFT::initializeAccumulatorFast(Justification justifications_MsgNewviewFast[NUM_REPLICAS])
 {
 	Accumulator accumulator_MsgLdrprepareFast = Accumulator();
 	Justifications_t justifications_MsgNewviewFast_t;
@@ -1019,9 +1019,9 @@ Justification ResiBFT::lockMsgPrecommitFast2Common(Justification justification_M
 
 Validations ResiBFT::buildValidations(std::set<MsgNewviewFast> msgNewviewFasts)
 {
-	Validation validations_MsgNewviewFast[NUM_ACTIVE_REPLICAS];
+	Validation validations_MsgNewviewFast[NUM_REPLICAS];
 	unsigned int i = 0;
-	for (std::set<MsgNewviewFast>::iterator itMsg = msgNewviewFasts.begin(); itMsg != msgNewviewFasts.end() && i < NUM_ACTIVE_REPLICAS; itMsg++, i++)
+	for (std::set<MsgNewviewFast>::iterator itMsg = msgNewviewFasts.begin(); itMsg != msgNewviewFasts.end() && i < NUM_REPLICAS; itMsg++, i++)
 	{
 		MsgNewviewFast msgNewviewFast = *itMsg;
 		bool isFail_MsgNewviewFast = msgNewviewFast.isFail;
@@ -1054,9 +1054,9 @@ Validations ResiBFT::buildValidations(std::set<MsgNewviewFast> msgNewviewFasts)
 
 Accumulator ResiBFT::buildAccumulator(std::set<MsgNewviewFast> msgNewviewFasts)
 {
-	Justification justifications_MsgNewviewFast[NUM_ACTIVE_REPLICAS];
+	Justification justifications_MsgNewviewFast[NUM_REPLICAS];
 	unsigned int i = 0;
-	for (std::set<MsgNewviewFast>::iterator itMsg = msgNewviewFasts.begin(); itMsg != msgNewviewFasts.end() && i < NUM_ACTIVE_REPLICAS; itMsg++, i++)
+	for (std::set<MsgNewviewFast>::iterator itMsg = msgNewviewFasts.begin(); itMsg != msgNewviewFasts.end() && i < NUM_REPLICAS; itMsg++, i++)
 	{
 		MsgNewviewFast msgNewviewFast = *itMsg;
 		RoundData roundData_MsgNewviewFast = msgNewviewFast.roundData;
@@ -2252,7 +2252,7 @@ void ResiBFT::handleMsgNewviewFast(MsgNewviewFast msgNewviewFast)
 		{
 			if (this->path == FAST_PATH)
 			{
-				if (this->log.storeMsgNewviewFast(msgNewviewFast) == this->generalQuorumSize)
+				if (this->log.storeMsgNewviewFast(msgNewviewFast) == this->allQuorumSize)
 				{
 					this->initiateMsgNewviewFast();
 				}
@@ -3012,8 +3012,8 @@ void ResiBFT::initiateMsgCommitCommon(RoundData roundData_MsgCommitCommon)
 
 void ResiBFT::initiateMsgNewviewFast()
 {
-	std::set<MsgNewviewFast> msgNewviewsFast = this->log.getMsgNewviewFast(this->view, this->generalQuorumSize);
-	if (msgNewviewsFast.size() == this->generalQuorumSize)
+	std::set<MsgNewviewFast> msgNewviewsFast = this->log.getMsgNewviewFast(this->view, this->allQuorumSize);
+	if (msgNewviewsFast.size() == this->allQuorumSize)
 	{
 		if (DEBUG_HELP)
 		{
@@ -3757,7 +3757,7 @@ int ResiBFT::initializeSGX()
 
 	sgx_status_t enclave_status_t;
 	sgx_status_t ecall_status_t;
-	ecall_status_t = TEE_initializeVariables(global_eid, &enclave_status_t, &(this->replicaId), &others, &(this->generalQuorumSize), &(this->trustedQuorumSize));
+	ecall_status_t = TEE_initializeVariables(global_eid, &enclave_status_t, &(this->replicaId), &others, &(this->allQuorumSize),  &(this->generalQuorumSize), &(this->trustedQuorumSize));
 	if (DEBUG_HELP)
 	{
 		std::cout << COLOUR_BLUE << this->printReplicaId() << "Enclave variables are initialized." << COLOUR_NORMAL << std::endl;
@@ -4041,6 +4041,7 @@ ResiBFT::ResiBFT(KeysFunctions keysFunctions, ReplicaID replicaId, unsigned int 
 	this->committee = Committee();
 	this->path = COMMON_PATH;
 	this->view = 0;
+	this->allQuorumSize = this->numReplicas;
 	this->generalQuorumSize = this->numReplicas - this->numFaults;
 	this->trustedQuorumSize = ceil((NUM_COMMITTEE_MEMBERS + 1) / 2.0);
 

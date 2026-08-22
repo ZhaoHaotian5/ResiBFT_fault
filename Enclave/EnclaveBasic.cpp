@@ -1,10 +1,16 @@
 #include "EnclaveBasic.h"
 
+Quorum allQuorumSize_t;				 // All quorum size
 Quorum generalQuorumSize_t;			 // General quorum size
 Quorum trustedQuorumSize_t;			 // Trusted quorum size
 ReplicaID replicaId;				 // Unique identifier
 Key privateKey;						 // Private key
 std::map<ReplicaID, Key> publicKeys; // Public keys
+
+Quorum getAllQuorumSize_t()
+{
+	return allQuorumSize_t;
+}
 
 Quorum getGeneralQuorumSize_t()
 {
@@ -45,11 +51,13 @@ void loadPrivateKey_t()
 	}
 }
 
-sgx_status_t TEE_initializeVariables(ReplicaID *me, Pids_t *others, unsigned int *GeneralQuorumSize, unsigned int *TrustedQuorumSize)
+sgx_status_t TEE_initializeVariables(ReplicaID *me, Pids_t *others, unsigned int *AllQuorumSize, unsigned int *GeneralQuorumSize, unsigned int *TrustedQuorumSize)
 {
 	sgx_status_t status_t = SGX_SUCCESS;
 	replicaId = *me;
 	TEE_Print((printReplicaId_t() + "ENCLAVE: Set up replicaId " + std::to_string(replicaId)).c_str());
+	allQuorumSize_t = *AllQuorumSize;
+	TEE_Print((printReplicaId_t() + "ENCLAVE: Set up the all quorum size " + std::to_string(allQuorumSize_t)).c_str());
 	generalQuorumSize_t = *GeneralQuorumSize;
 	TEE_Print((printReplicaId_t() + "ENCLAVE: Set up the general quorum size " + std::to_string(generalQuorumSize_t)).c_str());
 	trustedQuorumSize_t = *TrustedQuorumSize;

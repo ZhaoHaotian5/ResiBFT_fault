@@ -79,7 +79,7 @@ bool Validations::isAccepted()
 	}
 
 	unsigned int accepted = 0;
-	unsigned int threshold = ceil((this->size + 1) / 2.0);
+	unsigned int threshold = ceil((this->size - 1) * 2.0 / 3.0);
 
 	for (unsigned int i = 0; i < this->size; i++)
 	{
