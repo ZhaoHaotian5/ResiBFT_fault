@@ -136,9 +136,9 @@ void setJustification(Justification justification, Justification_t *justificatio
 }
 
 // Store [justifications] in [justifications_t]
-void setJustifications(Justification justifications[NUM_ACTIVE_REPLICAS], Justifications_t *justifications_t)
+void setJustifications(Justification justifications[NUM_REPLICAS], Justifications_t *justifications_t)
 {
-	for (int i = 0; i < NUM_ACTIVE_REPLICAS; i++)
+	for (int i = 0; i < NUM_REPLICAS; i++)
 	{
 		setJustification(justifications[i], &(justifications_t->justifications[i]));
 	}

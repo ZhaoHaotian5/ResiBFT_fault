@@ -65,7 +65,7 @@ typedef struct _Justification_t
 
 typedef struct _Justifications_t
 {
-	Justification_t justifications[NUM_ACTIVE_REPLICAS];
+	Justification_t justifications[NUM_REPLICAS];
 } Justifications_t;
 
 typedef struct _Accumulator_t
